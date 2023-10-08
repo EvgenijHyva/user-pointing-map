@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	"django.contrib.gis",
     "rest_framework",
+	"corsheaders",
 	"users",
 	"map_app",
 ]
@@ -54,7 +55,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware"
 ]
+
+REST_FRAMEWOR = {
+    "DEFAULT_PERMISSION_CLASSS": [
+		"rest_framework.permission.AllowAny", # not block React interaction with Django
+	]
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'geobackend.urls'
 
