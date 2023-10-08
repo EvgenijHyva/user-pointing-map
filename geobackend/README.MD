@@ -38,7 +38,7 @@ export GDAL_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/Cellar/gdal/3.7.2/lib/libgda
 export GEOS_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/Cellar/geos/3.12.0/lib/libgeos_c.so.1.18.0
 ```
 
-# The Project require .env file backend folder
+## The Project require .env file inside geobackend folder, on same level with <i>settings.py</i> file
 
 ### Make sure this contain actual environment variables
 
