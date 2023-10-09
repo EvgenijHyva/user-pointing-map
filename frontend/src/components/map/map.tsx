@@ -1,43 +1,71 @@
+import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import BackendService from '../../utils/service/service';
+import { PointResponseData } from '../../utils/service/backend-response.types';
 import { MapState, MapProps, IMap } from "./map-types";
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
 import Map from 'ol/Map';
+import { View } from 'ol';
 import OSM from "ol/source/OSM";
 import TileLayer from 'ol/layer/Tile';
+import { Feature } from 'ol';
+import { Point } from 'ol/geom';
+import { transform } from 'ol/proj';
 // styles
 import "./map.styles.css";
 import "ol/ol.css";
 import 'react-toastify/dist/ReactToastify.css';
-import { View } from 'ol';
-import { PointResponseData } from '../../utils/service/backend-response.types';
-import { AxiosError } from 'axios';
 
 export const MapContext = React.createContext<MapState | null>(null);
 
 
-function MapComponent({ zoom = 1 }: { zoom?: number }): JSX.Element {
-	const backend = new BackendService();
+function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const mapRef = useRef<Map | null>(null);
+	
+	const vectorSource = useMemo(() => new VectorSource(), []);
+	
 	const [locations, setLocations] = useState<PointResponseData[]>([]);
+	
+	const backend = new BackendService();
+
+	const renderPointsToMap = () => {
+		//vectorSource.clear();
+		locations.forEach((location) => {
+			const { point } = location;
+			const result = /SRID=(?<srid>\d+);POINT \((?<lon>[-.\d]+) (?<lat>[-.\d]+)\)/.exec(point)?.groups;
+			const EPSG = result?.srid;
+			const lon = result?.lon;
+			const lat = result?.lat;
+			if (lon && lat && EPSG) {
+				// Required to transform coordinates to EPSG:3857, OpenStreetMap uses as the default CRS
+				const transformedCoordinates =  transform([parseFloat(lon), parseFloat(lat)], `EPSG:${EPSG}`, 'EPSG:3857');
+				const featurePoint = new Feature({
+					geometry: new Point(transformedCoordinates)
+				})
+				vectorSource.addFeature(featurePoint);
+			}
+		});
+	}
 
 	useEffect(() => {
 		if (ref.current && !mapRef.current) {
-		mapRef.current = new Map({
-			layers: [
-				new TileLayer({ source: new OSM() })
-			],
-			view: new View({ 
-				center: [0, 0], 
-				zoom: 1 
-			}),
-			target: ref.current
-		});
+			mapRef.current = new Map({
+				layers: [
+					new TileLayer({ source: new OSM() }),
+					new VectorLayer({ source: vectorSource })
+				],
+				view: new View({ 
+					center: [0, 0], 
+					zoom: 1 
+				}),
+				target: ref.current
+			});
 		}
-	}, [ref, mapRef]);
+	}, [ref, mapRef, vectorSource]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -54,11 +82,16 @@ function MapComponent({ zoom = 1 }: { zoom?: number }): JSX.Element {
 	}, [])
 
 	useEffect(() => {
+		renderPointsToMap();
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [locations])
+
+	useEffect(() => {
 		mapRef.current?.getView().setZoom(zoom); // Use optional chaining here
 	}, [zoom]);
 
 	return (
-		<div ref={ref} id='map'>
+		<div ref={ref} id="map">
 			
 		</div>
 	);

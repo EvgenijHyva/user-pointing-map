@@ -9,8 +9,8 @@ function App(): JSX.Element {
   return (
     <div className="App">
       <h1>Map</h1>
-      <ToastContainer {...basicToastContainerProps} />
       <MapComponent/>
+      <ToastContainer {...basicToastContainerProps} />
     </div>
   );
 }
