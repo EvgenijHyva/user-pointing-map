@@ -8,7 +8,7 @@ from .models import Location
 def location_pre_save_signal(sender, instance, **kwargs):
 
 	existing_objects = Location.objects.filter(owner=instance.owner)
-	print(existing_objects.exists())
+	#print(existing_objects.exists())
 	if instance.pk:
 		if Location.objects.filter(textColor=instance.textColor).exclude(pk=instance.pk).exists():
 			instance.textColor = generate_user_color(instance.pk)

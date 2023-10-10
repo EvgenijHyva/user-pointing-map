@@ -66,6 +66,7 @@ REST_FRAMEWOR = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True # cookies for front
 
 ROOT_URLCONF = 'geobackend.urls'
 

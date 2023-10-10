@@ -11,7 +11,7 @@ class LocationView(APIView):
 	def get(self, request: Request):
 		locations = Location.objects.all()
 		serializer = OwnedLocationsSerializer(locations, many=True)
-		print(serializer.data)
+		#print(serializer.data)
 		return Response(serializer.data)
 	
 	def post(self, request: Request):

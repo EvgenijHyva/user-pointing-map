@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
 from .models import Location
-from users.serializer import BasicUserSerializer
+from users.serializer import UserResponseSerializer
 
 class OwnedLocationsSerializer(serializers.ModelSerializer):
-	owner = BasicUserSerializer()
+	owner = UserResponseSerializer()
 
 	class Meta:
 		model = Location

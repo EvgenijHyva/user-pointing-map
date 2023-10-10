@@ -4,6 +4,7 @@ export interface Owner {
   age: number | null;
   username: string;
   is_active: boolean;
+  is_admin: boolean;
   color: string;
 }
 
