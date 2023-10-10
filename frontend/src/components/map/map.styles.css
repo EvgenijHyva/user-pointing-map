@@ -10,3 +10,14 @@ body {
 	width: 80%;
 	height: 50%;
 }
+
+.overlay {
+	display: flex;
+	flex-direction: column;
+	background: white;
+	border-radius: 15px;
+	padding: 15px;
+	max-width: 250px;
+	overflow: overlay;
+	text-overflow: clip;
+}

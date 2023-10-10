@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import BackendService from '../../utils/service/service';
 import { PointResponseData } from '../../utils/service/backend-response.types';
-import { MapState, MapProps, IMap } from "./map-types";
+import { MapState, MapProps, IMap, PointFeature } from "./map-types";
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
@@ -19,6 +19,9 @@ import Text from 'ol/style/Text';
 import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import Circle from 'ol/style/Circle';
+import Select, { SelectEvent } from "ol/interaction/Select";
+import { pointerMove } from 'ol/events/condition';
+import Overlay from 'ol/Overlay';
 // styles
 import "./map.styles.css";
 import "ol/ol.css";
@@ -29,6 +32,8 @@ export const MapContext = React.createContext<MapState | null>(null);
 
 function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
+	const refOverlay = useRef<HTMLDivElement | null>(null);
+	const overlayRef = useRef<Overlay | null>(null)
 	const mapRef = useRef<Map | null>(null);
 	
 	const vectorSource = useMemo(() => new VectorSource(), []);
@@ -84,7 +89,9 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 				const featurePoint = new Feature({
 					geometry: new Point(transformedCoordinates),
 					name: location.title,
-					label: location.label
+					label: location.label,
+					owner: location.owner,
+					initial_point: location.point
 				})
 				const styles = createPointStyles(location);
 				featurePoint.setStyle(styles)
@@ -93,7 +100,6 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 			
 		});
 	}
-
 
 	useEffect(() => {
 		if (ref.current && !mapRef.current) {
@@ -108,6 +114,51 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 				}),
 				target: ref.current
 			});
+
+			// interactions
+			const select = new Select({
+				condition: pointerMove
+			});
+			mapRef.current.addInteraction(select);
+			
+			overlayRef.current = new Overlay({
+				element: refOverlay.current as  HTMLDivElement,
+				positioning: "bottom-center",
+				offset: [0, -10],
+				autoPan: true,
+			});
+			
+			mapRef.current.addOverlay(overlayRef.current);
+
+			select.on("select", (e: SelectEvent) => {
+				if (e.selected.length > 0) {
+					const mapPoint = e.selected.find((feature) => feature.getGeometry() instanceof Point)
+					if (mapPoint) {
+						const pointProps = mapPoint.getProperties() as PointFeature;
+						//console.log('Hovered over a point:', pointProps);
+						const overlay = overlayRef.current?.getElement()
+						overlay!.innerHTML = `
+							<div>
+								<i>Owner</i> - ${pointProps.owner.username} ${
+								pointProps.owner.first_name ? "(" + 
+								pointProps.owner.first_name + " " + 
+								pointProps.owner.last_name + ")" : ""}
+							</div> 
+							<div><i>Label</i>: ${pointProps.label || "Not set"}</div>
+							<div><i>Name</i>: ${pointProps.name}</div>
+							<div><i>Point</i>: ${pointProps.initial_point}</div>
+						`
+						const mouseCoordinate = e.mapBrowserEvent.coordinate;
+						overlayRef.current?.setPosition(mouseCoordinate);
+						//console.log(mouseCoordinate, overlay)
+					} else {
+						overlayRef.current?.setPosition(undefined);
+					}
+				} else {
+					overlayRef.current?.setPosition(undefined);
+				}
+			});
+			
 		}
 	}, [ref, mapRef, vectorSource]);
 
@@ -131,13 +182,14 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	}, [locations])
 
 	useEffect(() => {
-		mapRef.current?.getView().setZoom(zoom); // Use optional chaining here
+		mapRef.current?.getView().setZoom(zoom); 
 	}, [zoom]);
 
 	return (
-		<div ref={ref} id="map">
-			
-		</div>
+		<>
+			<div ref={ref} id="map" />
+			<div id="overlay" className="overlay" ref={refOverlay}/>
+		</>					
 	);
 }
 
