@@ -14,6 +14,11 @@ import TileLayer from 'ol/layer/Tile';
 import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { transform } from 'ol/proj';
+import Style from 'ol/style/Style';
+import Text from 'ol/style/Text';
+import Fill from 'ol/style/Fill';
+import Stroke from 'ol/style/Stroke';
+import Circle from 'ol/style/Circle';
 // styles
 import "./map.styles.css";
 import "ol/ol.css";
@@ -32,6 +37,39 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	
 	const backend = new BackendService();
 
+	const createPointStyles = (location: PointResponseData): Style[] => {
+		const textSize = 15; // Own 15, others 10
+		const pointTextStyle = new Style({
+			text: new Text({
+				text: location.label || location.title,
+				font: `bold ${textSize}px cursive,sans-serif`,
+				fill: new Fill({
+					color: 'black',
+				}),
+				stroke: new Stroke({
+					color: 'white',
+					width: 5,
+				}),
+				textBaseline: "bottom",
+				textAlign: "right",
+				offsetX: -15
+			}),
+		})
+		const pointStyle = new Style({
+			image: new Circle({
+				radius:7,
+				fill: new Fill({
+					color: "black"
+				}),
+				stroke: new Stroke({
+					color: 'white',
+					width: 2,
+				})
+			}),
+		})
+		return [pointStyle, pointTextStyle]
+	}
+
 	const renderPointsToMap = () => {
 		//vectorSource.clear();
 		locations.forEach((location) => {
@@ -44,12 +82,18 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 				// Required to transform coordinates to EPSG:3857, OpenStreetMap uses as the default CRS
 				const transformedCoordinates =  transform([parseFloat(lon), parseFloat(lat)], `EPSG:${EPSG}`, 'EPSG:3857');
 				const featurePoint = new Feature({
-					geometry: new Point(transformedCoordinates)
+					geometry: new Point(transformedCoordinates),
+					name: location.title,
+					label: location.label
 				})
+				const styles = createPointStyles(location);
+				featurePoint.setStyle(styles)
 				vectorSource.addFeature(featurePoint);
 			}
+			
 		});
 	}
+
 
 	useEffect(() => {
 		if (ref.current && !mapRef.current) {
