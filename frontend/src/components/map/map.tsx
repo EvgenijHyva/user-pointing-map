@@ -44,7 +44,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 				text: location.label || location.title,
 				font: `bold ${textSize}px cursive,sans-serif`,
 				fill: new Fill({
-					color: 'black',
+					color: location.textColor,
 				}),
 				stroke: new Stroke({
 					color: 'white',
@@ -59,7 +59,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 			image: new Circle({
 				radius:7,
 				fill: new Fill({
-					color: "black"
+					color: location.owner.color
 				}),
 				stroke: new Stroke({
 					color: 'white',

@@ -4,13 +4,15 @@ export interface Owner {
   age: number | null;
   username: string;
   is_active: boolean;
+  color: string;
 }
 
 export interface PointData {
   point: string;
   label: string | null;
   title: string;
-  form: string;
+  comment: string;
+  textColor: string;
 }
 
 export interface PointResponseData extends PointData {

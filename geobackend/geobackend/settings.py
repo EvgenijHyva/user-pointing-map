@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 	"django.contrib.gis",
     "rest_framework",
 	"corsheaders",
+	"colorfield",
 	"users",
 	"map_app",
 ]
