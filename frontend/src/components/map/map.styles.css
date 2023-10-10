@@ -21,3 +21,7 @@ body {
 	overflow: overlay;
 	text-overflow: clip;
 }
+
+.overlay > div {
+	font-size: 12px;
+}

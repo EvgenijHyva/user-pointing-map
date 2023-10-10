@@ -35,6 +35,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	const refOverlay = useRef<HTMLDivElement | null>(null);
 	const overlayRef = useRef<Overlay | null>(null)
 	const mapRef = useRef<Map | null>(null);
+	const controller = new AbortController();
 	
 	const vectorSource = useMemo(() => new VectorSource(), []);
 	
@@ -91,7 +92,10 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 					name: location.title,
 					label: location.label,
 					owner: location.owner,
-					initial_point: location.point
+					comment: location.comment,
+					initial_point: location.point,
+					created_at: location.created_at,
+					updated_at: location.updated_at
 				})
 				const styles = createPointStyles(location);
 				featurePoint.setStyle(styles)
@@ -139,14 +143,17 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 						const overlay = overlayRef.current?.getElement()
 						overlay!.innerHTML = `
 							<div>
-								<i>Owner</i> - ${pointProps.owner.username} ${
+								<i>Owner</i> - <b>${pointProps.owner.username} ${
 								pointProps.owner.first_name ? "(" + 
 								pointProps.owner.first_name + " " + 
-								pointProps.owner.last_name + ")" : ""}
-							</div> 
+								pointProps.owner.last_name + ")" : ""}</b>
+							</div><hr>
 							<div><i>Label</i>: ${pointProps.label || "Not set"}</div>
 							<div><i>Name</i>: ${pointProps.name}</div>
 							<div><i>Point</i>: ${pointProps.initial_point}</div>
+							${ pointProps.comment ? '<div><i>Comment</i>: '+ pointProps.comment +'</div>' : ""}
+							<div><i>Created</i>: ${new Date(pointProps.created_at)}</div>
+							<div><i>Updated</i>: ${new Date(pointProps.updated_at)}</div>
 						`
 						const mouseCoordinate = e.mapBrowserEvent.coordinate;
 						overlayRef.current?.setPosition(mouseCoordinate);
@@ -167,12 +174,19 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 			try {
 				const result = await backend.getPoints();
 				setLocations(result);
-			} catch (error) {
-				console.log(error)
-				toast((error as AxiosError).message)
+			} catch (err) {
+				const axiosErr = (err as  AxiosError)
+				if (axiosErr.message !== "canceled")
+					toast(axiosErr.message);
+				else
+					console.error(axiosErr)
 			}
 		}
   		fetchData();
+
+		return () => {
+			controller.abort();
+		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 

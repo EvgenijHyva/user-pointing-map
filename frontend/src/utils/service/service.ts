@@ -1,20 +1,24 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
-import { PointData, PointResponseData } from './backend-response.types';
+import axios, { AxiosResponse } from 'axios';
+import { PointData, PointResponseData, Owner } from './backend-response.types';
 
 interface serviceConfig {
 	responseEncoding: "utf8",
 	responseType: "json",
-	method?: "get" | "post" | "put" | "delete" 
+	method?: "get" | "post" | "put" | "delete",
+	signal: AbortSignal
 }
 
 class BackendService {
 	private config: serviceConfig;
 	private url = "http://localhost:8000";
+	public controller = new AbortController();
+
 	constructor(url?: string) {
 		this.config = {
 			responseEncoding: "utf8",
-			responseType: "json"
-		}
+			responseType: "json",
+			signal: this.controller.signal
+		};
 		if (url)
 			this.url = url;
 	}
@@ -24,9 +28,9 @@ class BackendService {
 		this.config.method = "get";
 		try {
 			const response = await axios.get<PointResponseData[]>(endpoint, this.config);
-			return response.data 
+			return response.data;
 		} catch (err) {
-			console.log(err)
+			console.log(err);
 			throw err;
 		}
 	}
@@ -36,9 +40,21 @@ class BackendService {
 		this.config.method = "post";
 		try {
 			const response = await axios.post(endpoint, data, this.config);
-			return response.data
+			return response.data;
 		} catch (err) {
-			console.log(err)
+			console.log(err);
+			throw err;
+		}
+	}
+
+	getUser = async (): Promise<Owner> => {
+		const endpoint = `${this.url}/api/users/me/`;
+		this.config.method = "get";
+		try {
+			const response = await axios.get<Owner>(endpoint, this.config);
+			return response.data;
+		} catch (err) {
+			console.log(err);
 			throw err;
 		}
 	}
