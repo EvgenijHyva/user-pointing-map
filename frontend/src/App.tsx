@@ -4,8 +4,20 @@ import Navigation from './components/navigation/navigation.component';
 import MainPage from './components/main-page/main-page';
 import ErrorPage from './components/error-page/error-page';
 import AuthComponent from './components/auth/auth';
+import { AuthContext } from "./context/AuthContext";
+import { useContext, useEffect } from 'react';
 
 function App(): JSX.Element {
+  const { user, getUser } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (!user) {
+      getUser()      
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+ 
+
   return (
     <Routes>
       <Route path='/' element={<Navigation />} > 

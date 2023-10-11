@@ -15,6 +15,7 @@ interface initialContext {
   setIsAuthenticated: (state: boolean) => void;
   setError: (error: null | string) => void; 
   login: (data: LoginRegisterDTO) => void;
+  getUser: () => void;
 }
 
 const initialContextState: initialContext = {
@@ -26,7 +27,8 @@ const initialContextState: initialContext = {
   setIsAuthenticated: (state: boolean) => {},
   setError: (error: null | string) => {},
   setLoading: (state: boolean) => {},
-  login: () => {}
+  login: () => {},
+  getUser: () => {}
 };
 
 export const AuthContext = createContext(initialContextState);
@@ -60,8 +62,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const getUser = async (): Promise<void> => {
+    const token = Cookies.get("access");
+    if (!token) {
+      return;
+    }
+    const appUser = await backendService.getUser();
+    if(appUser) {
+      setUser(appUser);
+    } 
+  }
+
   return (
-    <AuthContext.Provider value={{ loading, user, isAuthenticated, error, setError, setIsAuthenticated, setUser, setLoading, login }}>
+    <AuthContext.Provider value={{ loading, user, isAuthenticated, error, setError, setIsAuthenticated, setUser, setLoading, login, getUser }}>
       {children}
     </AuthContext.Provider>
   );

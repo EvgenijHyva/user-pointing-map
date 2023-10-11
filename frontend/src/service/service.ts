@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { PointData, PointResponseData, Owner, LoginRegisterDTO, TokenAuth } from './backend-response.types';
+import { PointData, PointResponseData, Owner, LoginRegisterDTO, TokenAuth, AppUser } from './backend-response.types';
 import Cookies from "js-cookie";
 
 
@@ -54,7 +54,7 @@ class BackendService {
 		}
 	}
 
-	getUser = async (): Promise<Owner | undefined> => {
+	getUser = async (): Promise<AppUser | undefined> => {
 		const endpoint = `${this.url}/api/users/me/`;
 		this.config.method = "get";
 		this.config.withCredentials = true;
