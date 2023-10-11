@@ -72,7 +72,12 @@ const SignUpForm = (): JSX.Element => {
 							type='password'
 							{...register("password")}
 						/>
-						<Button type="submit" color="secondary" variant="contained" fullWidth > Sign Up </Button>
+						<Button 
+							type="submit" 
+							color="secondary" 
+							variant="contained" 
+							fullWidth 
+						> Sign Up </Button>
 					</Grid>
 				</form>
 			</Paper>

@@ -27,12 +27,10 @@ export interface PointResponseData extends PointData {
 }
 
 export interface TokenAuth {
-  refresh: string;
-  access: string; 
+  jwt: string;
 }
 
 export interface LoginRegisterDTO {
-  username?: string;
-  email?: string;
+  username: string;
   password: string;
 }

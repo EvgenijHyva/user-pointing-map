@@ -6,11 +6,6 @@ import ErrorPage from './components/error-page/error-page';
 import AuthComponent from './components/auth/auth';
 
 function App(): JSX.Element {
-
-  const isAuthenticated = () => {
-    return false;
-  }
-
   return (
     <Routes>
       <Route path='/' element={<Navigation />} > 

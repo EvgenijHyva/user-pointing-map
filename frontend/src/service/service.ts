@@ -1,11 +1,15 @@
 import axios, { AxiosResponse } from 'axios';
 import { PointData, PointResponseData, Owner, LoginRegisterDTO, TokenAuth } from './backend-response.types';
+import Cookies from "js-cookie";
+
 
 interface serviceConfig {
 	responseEncoding: "utf8",
 	responseType: "json",
 	method?: "get" | "post" | "put" | "delete",
-	signal: AbortSignal
+	signal: AbortSignal,
+	headers: {},
+	withCredentials?: boolean
 }
 
 class BackendService {
@@ -17,7 +21,10 @@ class BackendService {
 		this.config = {
 			responseEncoding: "utf8",
 			responseType: "json",
-			signal: this.controller.signal
+			signal: this.controller.signal,
+			headers: {
+				"Content-Type": "application/json"
+			}
 		};
 		if (url)
 			this.url = url;
@@ -47,9 +54,21 @@ class BackendService {
 		}
 	}
 
-	getUser = async (): Promise<Owner> => {
+	getUser = async (): Promise<Owner | undefined> => {
 		const endpoint = `${this.url}/api/users/me/`;
 		this.config.method = "get";
+		this.config.withCredentials = true;
+		const token = Cookies.get("access");
+
+		if (!token) {
+			return;
+		}
+
+		this.config.headers = {
+			...this.config.headers,
+			//Cookie: `jwt=${token}`
+		}
+
 		try {
 			const response = await axios.get<Owner>(endpoint, this.config);
 			return response.data;
@@ -58,8 +77,8 @@ class BackendService {
 			throw err;
 		}
 	}
-	// TODO promises
-	login = async (data: LoginRegisterDTO): Promise<any> => {
+
+	login = async (data: LoginRegisterDTO): Promise<TokenAuth> => {
 		const endpoint = `${this.url}/api/users/login/`;
 		this.config.method = "post";
 		try {
@@ -70,6 +89,7 @@ class BackendService {
 			throw err;
 		}
 	}
+	// TODO promises
 	register = async (data: LoginRegisterDTO): Promise<any> => {
 		const endpoint = `${this.url}/api/users/register/`;
 		this.config.method = "post";
@@ -81,17 +101,6 @@ class BackendService {
 			throw err;
 		}
 	
-	}
-	token = async (data: LoginRegisterDTO): Promise<TokenAuth> => {
-		const endpoint = `${this.url}/api/users/token/`;
-		this.config.method = "post";
-		try {
-			const response = await axios.post(endpoint, data, this.config);
-			return response.data;
-		} catch (err) {
-			console.log(err);
-			throw err;
-		}
 	}
 }
 

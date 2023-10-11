@@ -3,11 +3,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
 import jwt, datetime
 import os
 
-from .serializer import UserSerializer, UserResponseSerializer
+from .serializer import UserSerializer
 from users.models import AppUser
 
 class UserRegister(APIView):
@@ -20,11 +19,10 @@ class UserRegister(APIView):
 	
 class UserLogin(APIView):
 	def post(self, request: Request) -> Response:
-		email = request.data.get("email")
 		username = request.data.get("username")
 		password = request.data.get("password")
 
-		user = get_object_or_404(AppUser, Q(email=email) | Q(username=username))
+		user = get_object_or_404(AppUser,username=username)
 
 		if not user.check_password(password):
 			raise AuthenticationFailed("incorrect password")
@@ -34,7 +32,7 @@ class UserLogin(APIView):
 			"exp": datetime.datetime.utcnow() + datetime.timedelta(days=30),
 			"iat": datetime.datetime.utcnow()
 		}
-
+		
 		token = jwt.encode(payload, os.environ.get("SECRET_KEY"), algorithm="HS256")
 
 		response = Response()
@@ -46,7 +44,7 @@ class UserLogin(APIView):
 
 class UserView(APIView):
 	def get(self, request: Request) -> Response:
-		token = request.COOKIES.get("jwt")
+		token = request.COOKIES.get("access")
 		
 		if not token:
 			raise AuthenticationFailed("Unauthenticated! Token not provided")
@@ -59,13 +57,13 @@ class UserView(APIView):
 		#print(payload)
 		user = AppUser.objects.get(id=payload["id"])
 
-		serializer = UserResponseSerializer(user)
+		serializer = UserSerializer(user)
 
 		return Response(serializer.data)
 	
 
 class LogoutView(APIView):
-	def post(self, request) -> Response:
+	def post(self, request: Request) -> Response:
 		response = Response()
 		response.delete_cookie("jwt")
 		response.data = {
