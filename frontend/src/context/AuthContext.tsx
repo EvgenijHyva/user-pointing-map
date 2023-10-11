@@ -1,8 +1,9 @@
-import { useState, createContext, ReactNode, useContext } from "react";
-import { AppUser, LoginRegisterDTO } from '../service/backend-response.types';
+import { useState, createContext, ReactNode, useEffect } from "react";
+import { AppUser, LoginDTO, RegisterDTO } from '../service/backend-response.types';
 import { AxiosError } from 'axios';
 import BackendService from '../service/service';
 import Cookies from "js-cookie";
+import { toast } from 'react-toastify';
 
 
 interface initialContext {
@@ -10,12 +11,9 @@ interface initialContext {
   user: null | AppUser;
   isAuthenticated: boolean;
   error: null | string;
-  setLoading: (state: boolean) => void;
-  setUser: (user: AppUser | null) => void;
-  setIsAuthenticated: (state: boolean) => void;
-  setError: (error: null | string) => void; 
-  login: (data: LoginRegisterDTO) => void;
+  login: (data: LoginDTO) => void;
   getUser: () => void;
+  registerUser: (data: RegisterDTO) => void;
 }
 
 const initialContextState: initialContext = {
@@ -23,12 +21,9 @@ const initialContextState: initialContext = {
   user: null,
   isAuthenticated: false,
   error: null,
-  setUser: (user: AppUser | null) => {},
-  setIsAuthenticated: (state: boolean) => {},
-  setError: (error: null | string) => {},
-  setLoading: (state: boolean) => {},
   login: () => {},
-  getUser: () => {}
+  getUser: () => {},
+  registerUser: () => {}
 };
 
 export const AuthContext = createContext(initialContextState);
@@ -40,24 +35,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<null | string>(null);
   const backendService = new BackendService();
 
-  const login = async (data: LoginRegisterDTO) => {
+  const login = async (data: LoginDTO) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
       const response = await backendService.login(data)
       if (response) {
 			Cookies.set("access", response.jwt, { 
 				expires: 30, 
-				secure: process.env.NODE_ENV !== "development",
+				secure: process.env.NODE_ENV !== "development", // Dev
 				sameSite: "Lax",
 				path: "/"
 			});
-			setIsAuthenticated(true)
+      setIsAuthenticated(true)
 		}
     } catch (err) {
       setLoading(false);
-      let axiosErr = err as AxiosError
-      console.log(err)
+      const axiosErr = err as AxiosError;
+      console.error(err);
       setError(`${axiosErr.response?.statusText}. ${(axiosErr.response?.data as { detail: string}).detail}.`);
     }
   }
@@ -73,8 +68,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } 
   }
 
+  const registerUser =async (data: RegisterDTO): Promise<void> => {
+    setError(null);
+    setLoading(true);
+    try {
+      const response = await backendService.register(data);
+      if (response) {
+        setIsAuthenticated(true)
+      }
+    } catch (err) {
+      setLoading(false);
+      const axiosErr = err as AxiosError;
+      console.error(err)
+      setError(`${axiosErr.response?.statusText}. ${(axiosErr.response?.data as { detail: string}).detail}.`);
+    }
+  }
+
+  useEffect(() => {
+		if (error) {
+			toast(error)
+		}
+	}, [error])
+
   return (
-    <AuthContext.Provider value={{ loading, user, isAuthenticated, error, setError, setIsAuthenticated, setUser, setLoading, login, getUser }}>
+    <AuthContext.Provider value={{ 
+        loading, 
+        user, 
+        isAuthenticated, 
+        error, 
+        login, 
+        getUser,
+        registerUser
+      }}>
       {children}
     </AuthContext.Provider>
   );

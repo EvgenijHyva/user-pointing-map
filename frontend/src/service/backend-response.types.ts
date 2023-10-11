@@ -30,7 +30,11 @@ export interface TokenAuth {
   jwt: string;
 }
 
-export interface LoginRegisterDTO {
+export interface LoginDTO {
   username: string;
   password: string;
+}
+
+export interface RegisterDTO extends LoginDTO {
+
 }

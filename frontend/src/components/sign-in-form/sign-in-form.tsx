@@ -1,33 +1,17 @@
 import { Grid, Paper, Avatar, TextField, Button } from "@mui/material";
 import PeopleTwoToneIcon from '@mui/icons-material/PeopleTwoTone';
 import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
-import { toast } from 'react-toastify';
 import { AuthContext } from "../../context/AuthContext";
-import { useContext, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
-import { LoginRegisterDTO } from '../../service/backend-response.types';
+import { useContext } from 'react';
+import { LoginDTO } from '../../service/backend-response.types';
 
 const SignInForm = (): JSX.Element => {
 	const { register, handleSubmit } = useForm();
-	const navigate = useNavigate();
-	const { loading, error, isAuthenticated, login } = useContext(AuthContext)
+	const { loading, login } = useContext(AuthContext);
 
 	const submitHandler: SubmitHandler<FieldValues> = async (data) => {
-		await login(data as LoginRegisterDTO);
+		await login(data as LoginDTO);
 	}
-
-	useEffect(()=> {
-		if (isAuthenticated) {
-			navigate("/");
-		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isAuthenticated])
-
-	useEffect(() => {
-		if (error) {
-			toast(error)
-		}
-	}, [error])
 
 	return (
 		<Grid  container justifyContent="center" alignItems="center"> 

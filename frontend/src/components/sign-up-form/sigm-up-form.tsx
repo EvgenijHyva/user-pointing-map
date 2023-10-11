@@ -1,6 +1,9 @@
 import { Grid, Paper, Avatar, TextField, Button } from "@mui/material";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { RegisterDTO } from '../../service/backend-response.types';
 
 interface FormData {
   username: string;
@@ -13,9 +16,10 @@ interface FormData {
 
 const SignUpForm = (): JSX.Element => {
 	const { register, handleSubmit } = useForm();
+	const { loading, registerUser } = useContext(AuthContext);
 
-	const submit: SubmitHandler<FieldValues> = (data) => {
-		
+	const submit: SubmitHandler<FieldValues> = async (data) => {
+		await registerUser(data as RegisterDTO);
 		console.log(data)
 	}
 

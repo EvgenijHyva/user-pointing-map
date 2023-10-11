@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { PointData, PointResponseData, Owner, LoginRegisterDTO, TokenAuth, AppUser } from './backend-response.types';
+import { PointData, PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO } from './backend-response.types';
 import Cookies from "js-cookie";
 
 
@@ -78,7 +78,7 @@ class BackendService {
 		}
 	}
 
-	login = async (data: LoginRegisterDTO): Promise<TokenAuth> => {
+	login = async (data: LoginDTO): Promise<TokenAuth> => {
 		const endpoint = `${this.url}/api/users/login/`;
 		this.config.method = "post";
 		try {
@@ -90,7 +90,7 @@ class BackendService {
 		}
 	}
 	// TODO promises
-	register = async (data: LoginRegisterDTO): Promise<any> => {
+	register = async (data: RegisterDTO): Promise<any> => {
 		const endpoint = `${this.url}/api/users/register/`;
 		this.config.method = "post";
 		try {
