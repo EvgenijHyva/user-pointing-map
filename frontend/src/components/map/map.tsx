@@ -1,8 +1,8 @@
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import BackendService from '../../utils/service/service';
-import { PointResponseData } from '../../utils/service/backend-response.types';
+import BackendService from '../../service/service';
+import { PointResponseData } from '../../service/backend-response.types';
 import { MapState, MapProps, IMap, PointFeature } from "./map-types";
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';

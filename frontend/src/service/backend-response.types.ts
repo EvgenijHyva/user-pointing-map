@@ -8,6 +8,9 @@ export interface Owner {
   color: string;
 }
 
+export interface AppUser extends Owner{
+}
+
 export interface PointData {
   point: string;
   label: string | null;
@@ -23,3 +26,13 @@ export interface PointResponseData extends PointData {
   updated_at: string;
 }
 
+export interface TokenAuth {
+  refresh: string;
+  access: string; 
+}
+
+export interface LoginRegisterDTO {
+  username?: string;
+  email?: string;
+  password: string;
+}

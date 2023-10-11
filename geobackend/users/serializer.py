@@ -15,7 +15,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = AppUser
-		fields = ("id", "username", "email", "password")
+		fields = ("id", "username", "email", "password", "first_name", "last_name", "age")
 		extra_kwargs = {
             "username": {"required": True, "allow_blank": False, "min_length": 3},
             "email": {"required": True, "allow_blank": False},

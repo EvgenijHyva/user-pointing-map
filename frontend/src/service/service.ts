@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { PointData, PointResponseData, Owner } from './backend-response.types';
+import { PointData, PointResponseData, Owner, LoginRegisterDTO, TokenAuth } from './backend-response.types';
 
 interface serviceConfig {
 	responseEncoding: "utf8",
@@ -52,6 +52,41 @@ class BackendService {
 		this.config.method = "get";
 		try {
 			const response = await axios.get<Owner>(endpoint, this.config);
+			return response.data;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	// TODO promises
+	login = async (data: LoginRegisterDTO): Promise<any> => {
+		const endpoint = `${this.url}/api/users/login/`;
+		this.config.method = "post";
+		try {
+			const response = await axios.post(endpoint, data, this.config);
+			return response.data;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	register = async (data: LoginRegisterDTO): Promise<any> => {
+		const endpoint = `${this.url}/api/users/register/`;
+		this.config.method = "post";
+		try {
+			const response = await axios.post(endpoint, data, this.config);
+			return response.data;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	
+	}
+	token = async (data: LoginRegisterDTO): Promise<TokenAuth> => {
+		const endpoint = `${this.url}/api/users/token/`;
+		this.config.method = "post";
+		try {
+			const response = await axios.post(endpoint, data, this.config);
 			return response.data;
 		} catch (err) {
 			console.log(err);

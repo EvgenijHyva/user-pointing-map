@@ -1,11 +1,11 @@
 
 import { useEffect, useState} from 'react';
-import BackendService from '../../utils/service/service';
+import BackendService from '../../service/service';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
-import { Owner } from '../../utils/service/backend-response.types';
+import { Owner } from '../../service/backend-response.types';
 
-const User = (): JSX.Element => {
+const Users = (): JSX.Element => {
 	const [user, setUser] = useState<Owner | null>(null);
 
 	useEffect(() => {
@@ -37,4 +37,4 @@ const User = (): JSX.Element => {
 	)
 }
 
-export default User
+export default Users;

@@ -1,5 +1,5 @@
 import Map from "ol/Map";
-import { Owner } from '../../utils/service/backend-response.types';
+import { Owner } from '../../service/backend-response.types';
 
 export type MapProps = {};
 
