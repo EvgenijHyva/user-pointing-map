@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import BackendService from '../../service/service';
 import { PointResponseData } from '../../service/backend-response.types';
-import { MapState, MapProps, IMap, PointFeature } from "./map-types";
+import { PointFeature } from "./map-types";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from 'react';
 // Openlayers
@@ -24,9 +24,10 @@ import Circle from 'ol/style/Circle';
 import Select, { SelectEvent } from "ol/interaction/Select";
 import { pointerMove } from 'ol/events/condition';
 import Overlay from 'ol/Overlay';
+import RegularShape from 'ol/style/RegularShape';
 // styles
 import "./map.styles.css";
-import RegularShape from 'ol/style/RegularShape';
+
 
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -127,8 +128,8 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 					new VectorLayer({ source: vectorSource })
 				],
 				view: new View({ 
-					center: [1765791, 7879740], // finland coordinates
-					zoom: 1 
+					center: [1641912, 7943663], 
+					zoom: 4 
 				}),
 				target: ref.current
 			});
@@ -139,7 +140,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			});
 			mapRef.current.addInteraction(select);
 			
-			// TODO Overlay issue
 			overlayRef.current = new Overlay({
 				element: refOverlay.current as  HTMLDivElement,
 				positioning: "bottom-center",
@@ -178,7 +178,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 							
 							const mouseCoordinate = e.mapBrowserEvent.coordinate;
 							overlayRef.current?.setPosition(mouseCoordinate);
-							//console.log(mouseCoordinate, overlay)
+							console.log(mouseCoordinate)
 						} else {
 							overlayRef.current?.setPosition(undefined);
 							overlay.innerHTML = "";
@@ -224,11 +224,9 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 	
 	return (
-		<>
-			<div ref={ref} id="map" > 
-				<div id="overlay" className="overlay" ref={refOverlay}/>
-			</div>
-		</>					
+		<div ref={ref} id="map" > 
+			<div id="overlay" className="overlay" ref={refOverlay}/>
+		</div>			
 	);
 }
 

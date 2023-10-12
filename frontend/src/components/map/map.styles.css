@@ -6,9 +6,9 @@ body {
 
 #map {
 	position: absolute;
-	top: 10%;
-	width: 80%;
-	height: 50%;
+	top: 65px;
+	width: 100%;
+	height: calc(100% - 65px);
 }
 
 .overlay {
