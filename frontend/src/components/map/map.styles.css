@@ -11,6 +11,13 @@ body {
 	height: calc(100% - 65px);
 }
 
+@media screen and (max-width: 600px) {
+	#map {
+		top:60px;
+		height: calc(100% - 60px);
+	}
+}
+
 .overlay {
 	display: flex;
 	flex-direction: column;
