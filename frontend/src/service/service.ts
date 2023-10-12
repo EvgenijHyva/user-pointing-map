@@ -89,8 +89,8 @@ class BackendService {
 			throw err;
 		}
 	}
-	// TODO promises
-	register = async (data: RegisterDTO): Promise<any> => {
+
+	register = async (data: RegisterDTO): Promise<AppUser & TokenAuth> => {
 		const endpoint = `${this.url}/api/users/register/`;
 		this.config.method = "post";
 		try {

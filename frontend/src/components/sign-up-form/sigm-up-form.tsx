@@ -5,22 +5,16 @@ import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { RegisterDTO } from '../../service/backend-response.types';
 
-interface FormData {
-  username: string;
-  first_name: string;
-  last_name: string;
-  age: number;
-  email: string;
-  password: string;
-}
 
 const SignUpForm = (): JSX.Element => {
 	const { register, handleSubmit } = useForm();
 	const { loading, registerUser } = useContext(AuthContext);
 
 	const submit: SubmitHandler<FieldValues> = async (data) => {
-		await registerUser(data as RegisterDTO);
-		console.log(data)
+		const registerData = data as RegisterDTO;
+		if (!registerData.age)
+			registerData.age = null;
+		await registerUser(registerData);
 	}
 
 	return (
@@ -56,7 +50,7 @@ const SignUpForm = (): JSX.Element => {
 							{...register("last_name")}
 						/>
 						<TextField 
-							label="age" 
+							label="age"
 							placeholder='Enter username'
 							fullWidth type='number'
 							{...register("age")}
@@ -80,8 +74,9 @@ const SignUpForm = (): JSX.Element => {
 							type="submit" 
 							color="secondary" 
 							variant="contained" 
-							fullWidth 
-						> Sign Up </Button>
+							fullWidth
+							disabled={loading}
+						> { loading ? "Registering new user" : "Sign Un" } </Button>
 					</Grid>
 				</form>
 			</Paper>

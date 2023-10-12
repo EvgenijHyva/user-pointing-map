@@ -1,4 +1,5 @@
 export interface Owner {
+  id: number;
   first_name: string;
   last_name: string;
   age: number | null;
@@ -21,7 +22,7 @@ export interface PointData {
 
 export interface PointResponseData extends PointData {
   id: number;
-  owner: Owner;
+  owner: Owner | null;
   created_at: string;
   updated_at: string;
 }
@@ -36,5 +37,8 @@ export interface LoginDTO {
 }
 
 export interface RegisterDTO extends LoginDTO {
-
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  age?: number | null;
 }

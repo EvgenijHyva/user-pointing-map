@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import BackendService from '../../service/service';
 import { PointResponseData } from '../../service/backend-response.types';
 import { MapState, MapProps, IMap, PointFeature } from "./map-types";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from 'react';
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
@@ -24,11 +26,7 @@ import { pointerMove } from 'ol/events/condition';
 import Overlay from 'ol/Overlay';
 // styles
 import "./map.styles.css";
-import "ol/ol.css";
-import 'react-toastify/dist/ReactToastify.css';
-
-export const MapContext = React.createContext<MapState | null>(null);
-
+import RegularShape from 'ol/style/RegularShape';
 
 function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -36,6 +34,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	const overlayRef = useRef<Overlay | null>(null)
 	const mapRef = useRef<Map | null>(null);
 	const controller = new AbortController();
+	const { user } = useContext(AuthContext);
 	
 	const vectorSource = useMemo(() => new VectorSource(), []);
 	
@@ -44,7 +43,10 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	const backend = new BackendService();
 
 	const createPointStyles = (location: PointResponseData): Style[] => {
-		const textSize = 15; // Own 15, others 10
+		const own = user?.username === location.owner?.username;
+		const textSize = own ? 16 : 10; // Own 15, others 10
+		const pointRadius = own ? 10 : 5
+		console.log(textSize)
 		const pointTextStyle = new Style({
 			text: new Text({
 				text: location.label || location.title,
@@ -62,14 +64,26 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 			}),
 		})
 		const pointStyle = new Style({
-			image: new Circle({
-				radius:7,
+			image: !own ? new Circle({ // Some other users points
+				radius: pointRadius,
 				fill: new Fill({
-					color: location.owner.color
+					color: location.owner?.color ?? location.textColor
 				}),
 				stroke: new Stroke({
 					color: 'white',
 					width: 2,
+				})
+			}) : new RegularShape({ // Own points 
+				points: 5,
+				radius1: pointRadius,
+				radius2: pointRadius / 1.8,
+				angle: 0, 
+				fill: new Fill({
+					color: location.owner?.color ?? location.textColor
+				}),
+				stroke: new Stroke({
+					color: 'white',
+					width: 2
 				})
 			}),
 		})
@@ -77,7 +91,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	}
 
 	const renderPointsToMap = () => {
-		//vectorSource.clear();
+		vectorSource.clear();
 		locations.forEach((location) => {
 			const { point } = location;
 			const result = /SRID=(?<srid>\d+);POINT \((?<lon>[-.\d]+) (?<lat>[-.\d]+)\)/.exec(point)?.groups;
@@ -113,7 +127,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 					new VectorLayer({ source: vectorSource })
 				],
 				view: new View({ 
-					center: [0, 0], 
+					center: [1765791, 7879740], // finland coordinates
 					zoom: 1 
 				}),
 				target: ref.current
@@ -143,10 +157,10 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 						const overlay = overlayRef.current?.getElement()
 						overlay!.innerHTML = `
 							<div>
-								<i>Owner</i> - <b>${pointProps.owner.username} ${
-								pointProps.owner.first_name ? "(" + 
-								pointProps.owner.first_name + " " + 
-								pointProps.owner.last_name + ")" : ""}</b>
+								<i>Owner</i> - <b>${pointProps.owner?.username ?? "deleted"} ${
+								pointProps.owner?.first_name ? "(" + 
+								pointProps.owner?.first_name + " " + 
+								pointProps.owner?.last_name + ")" : ""}</b>
 							</div><hr>
 							<div><i>Label</i>: ${pointProps.label || "Not set"}</div>
 							<div><i>Name</i>: ${pointProps.name}</div>
@@ -165,8 +179,15 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 					overlayRef.current?.setPosition(undefined);
 				}
 			});
-			
 		}
+
+		/* return () => {
+			if (mapRef.current) {
+				mapRef.current.getInteractions().clear();
+				mapRef.current.setTarget(undefined);
+				mapRef.current.dispose();
+			}
+		} */
 	}, [ref, mapRef, vectorSource]);
 
 	useEffect(() => {
@@ -199,6 +220,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 		mapRef.current?.getView().setZoom(zoom); 
 	}, [zoom]);
 
+	
 	return (
 		<>
 			<div ref={ref} id="map" />

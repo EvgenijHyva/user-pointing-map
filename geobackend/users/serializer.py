@@ -5,14 +5,19 @@ from .models import AppUser
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = AppUser
-		fields = ("first_name", "last_name", "age", "username", "is_active", "color", "is_admin", "password")
+		fields = ("id", "first_name", "last_name", "age", "username", "is_active", "color", "is_admin", "password")
 		extra_kwargs = {
             "username": {"required": True, "allow_blank": False, "min_length": 3},
             "email": {"required": True, "allow_blank": False},
-            "password": {"required": True, "allow_blank": False, "min_length": 6, "write_only": True}
+            "password": {"required": True, "allow_blank": False, "min_length": 6, "write_only": True},
+			"age": {"required": False }
 		}
 
 	is_admin = serializers.SerializerMethodField(read_only=True)
+	id = serializers.SerializerMethodField(read_only=True)
+
+	def get_id(self, instance):
+		return instance.pk
 
 	def get_is_admin(self, instance):
 		return instance.is_staff or instance.is_superuser

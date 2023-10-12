@@ -14,6 +14,7 @@ interface initialContext {
   login: (data: LoginDTO) => void;
   getUser: () => void;
   registerUser: (data: RegisterDTO) => void;
+  logout: () => void;
 }
 
 const initialContextState: initialContext = {
@@ -23,7 +24,8 @@ const initialContextState: initialContext = {
   error: null,
   login: () => {},
   getUser: () => {},
-  registerUser: () => {}
+  registerUser: () => {},
+  logout: () => {}
 };
 
 export const AuthContext = createContext(initialContextState);
@@ -48,6 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				path: "/"
 			});
       setIsAuthenticated(true)
+      getUser();
 		}
     } catch (err) {
       setLoading(false);
@@ -68,25 +71,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } 
   }
 
-  const registerUser =async (data: RegisterDTO): Promise<void> => {
+  const registerUser = async (data: RegisterDTO): Promise<void> => {
     setError(null);
     setLoading(true);
     try {
       const response = await backendService.register(data);
       if (response) {
-        setIsAuthenticated(true)
+          const { jwt, ...responseUser } = response;
+          Cookies.set("access", jwt, { 
+          expires: 30, 
+          secure: process.env.NODE_ENV !== "development", // Dev
+          sameSite: "Lax",
+          path: "/"
+			  });
+        console.log(responseUser)
+        setUser(responseUser);
+        setIsAuthenticated(true);
       }
     } catch (err) {
       setLoading(false);
       const axiosErr = err as AxiosError;
       console.error(err)
-      setError(`${axiosErr.response?.statusText}. ${(axiosErr.response?.data as { detail: string}).detail}.`);
+      setError(`${axiosErr.response?.statusText}. ${
+        Object.entries(axiosErr.response?.data as { [key: string]: string })
+          .map((entry, index) => `(${++index}) ${entry.join(" - ")}`)
+          .join(" ,\n") }`);
     }
+  }
+
+  const logout =async (): Promise<void> => {
+    Cookies.remove("access");
+    setUser(null);
   }
 
   useEffect(() => {
 		if (error) {
-			toast(error)
+			toast(error, { autoClose: false })
 		}
 	}, [error])
 
@@ -98,7 +118,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         error, 
         login, 
         getUser,
-        registerUser
+        registerUser,
+        logout
       }}>
       {children}
     </AuthContext.Provider>

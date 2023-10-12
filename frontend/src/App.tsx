@@ -1,11 +1,14 @@
 import { Routes, Route } from 'react-router-dom';
-import './App.css';
 import Navigation from './components/navigation/navigation.component';
 import MainPage from './components/main-page/main-page';
 import ErrorPage from './components/error-page/error-page';
 import AuthComponent from './components/auth/auth';
 import { AuthContext } from "./context/AuthContext";
 import { useContext, useEffect } from 'react';
+import "ol/ol.css";
+import 'react-toastify/dist/ReactToastify.css';
+import './App.css';
+
 
 function App(): JSX.Element {
   const { user, getUser } = useContext(AuthContext)

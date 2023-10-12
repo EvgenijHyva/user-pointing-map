@@ -15,7 +15,23 @@ class UserRegister(APIView):
 		serializer = UserSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
-		return Response(serializer.data)
+
+		print(serializer.data)
+		payload = {
+			"id": serializer.data["id"],
+			"exp": datetime.datetime.utcnow() + datetime.timedelta(days=30),
+			"iat": datetime.datetime.utcnow()
+		}
+		
+		token = jwt.encode(payload, os.environ.get("SECRET_KEY"), algorithm="HS256")
+
+		response = Response()
+		response.set_cookie(key="jwt", value=token, httponly=True)
+
+		response.data = serializer.data
+		response.data["jwt"] = token
+
+		return response
 	
 class UserLogin(APIView):
 	def post(self, request: Request) -> Response:
