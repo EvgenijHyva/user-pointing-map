@@ -76,7 +76,7 @@ const SignUpForm = (): JSX.Element => {
 							variant="contained" 
 							fullWidth
 							disabled={loading}
-						> { loading ? "Registering new user" : "Sign Un" } </Button>
+						> { loading ? "Registering new user" : "Sign Up" } </Button>
 					</Grid>
 				</form>
 			</Paper>

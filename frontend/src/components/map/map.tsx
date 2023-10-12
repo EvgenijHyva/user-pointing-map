@@ -28,7 +28,7 @@ import Overlay from 'ol/Overlay';
 import "./map.styles.css";
 import RegularShape from 'ol/style/RegularShape';
 
-function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
+function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const refOverlay = useRef<HTMLDivElement | null>(null);
 	const overlayRef = useRef<Overlay | null>(null)
@@ -43,10 +43,9 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	const backend = new BackendService();
 
 	const createPointStyles = (location: PointResponseData): Style[] => {
-		const own = user?.username === location.owner?.username;
+		const own = user && user?.username === location.owner?.username;
 		const textSize = own ? 16 : 10; // Own 15, others 10
 		const pointRadius = own ? 10 : 5
-		console.log(textSize)
 		const pointTextStyle = new Style({
 			text: new Text({
 				text: location.label || location.title,
@@ -91,6 +90,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	}
 
 	const renderPointsToMap = () => {
+		if(!mapRef || !ref) return;
 		vectorSource.clear();
 		locations.forEach((location) => {
 			const { point } = location;
@@ -120,7 +120,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	}
 
 	useEffect(() => {
-		if (ref.current && !mapRef.current) {
+		if (ref.current && !mapRef.current && overlayRef && refOverlay) {
 			mapRef.current = new Map({
 				layers: [
 					new TileLayer({ source: new OSM() }),
@@ -139,6 +139,7 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 			});
 			mapRef.current.addInteraction(select);
 			
+			// TODO Overlay issue
 			overlayRef.current = new Overlay({
 				element: refOverlay.current as  HTMLDivElement,
 				positioning: "bottom-center",
@@ -149,45 +150,46 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 			mapRef.current.addOverlay(overlayRef.current);
 
 			select.on("select", (e: SelectEvent) => {
-				if (e.selected.length > 0) {
-					const mapPoint = e.selected.find((feature) => feature.getGeometry() instanceof Point)
-					if (mapPoint) {
-						const pointProps = mapPoint.getProperties() as PointFeature;
-						//console.log('Hovered over a point:', pointProps);
-						const overlay = overlayRef.current?.getElement()
-						overlay!.innerHTML = `
-							<div>
-								<i>Owner</i> - <b>${pointProps.owner?.username ?? "deleted"} ${
-								pointProps.owner?.first_name ? "(" + 
-								pointProps.owner?.first_name + " " + 
-								pointProps.owner?.last_name + ")" : ""}</b>
-							</div><hr>
-							<div><i>Label</i>: ${pointProps.label || "Not set"}</div>
-							<div><i>Name</i>: ${pointProps.name}</div>
-							<div><i>Point</i>: ${pointProps.initial_point}</div>
-							${ pointProps.comment ? '<div><i>Comment</i>: '+ pointProps.comment +'</div>' : ""}
-							<div><i>Created</i>: ${new Date(pointProps.created_at)}</div>
-							<div><i>Updated</i>: ${new Date(pointProps.updated_at)}</div>
-						`
-						const mouseCoordinate = e.mapBrowserEvent.coordinate;
-						overlayRef.current?.setPosition(mouseCoordinate);
-						//console.log(mouseCoordinate, overlay)
+
+				const overlay = overlayRef.current?.getElement();
+
+				if (overlay) {
+					if (e.selected.length > 0) {
+						const mapPoint = e.selected.find((feature) => feature.getGeometry() instanceof Point)
+						if (mapPoint) {
+							const pointProps = mapPoint.getProperties() as PointFeature;
+							//console.log('Hovered over a point:', pointProps);
+							const overlay = overlayRef.current?.getElement()
+							
+							overlay!.innerHTML = `
+								<div>
+									<i>Owner</i> - <b>${pointProps.owner?.username ?? "deleted"} ${
+									pointProps.owner?.first_name ? "(" + 
+									pointProps.owner?.first_name + " " + 
+									pointProps.owner?.last_name + ")" : ""}</b>
+								</div><hr>
+								<div><i>Label</i>: ${pointProps.label || "Not set"}</div>
+								<div><i>Name</i>: ${pointProps.name}</div>
+								<div><i>Point</i>: ${pointProps.initial_point}</div>
+								${ pointProps.comment ? '<div><i>Comment</i>: '+ pointProps.comment +'</div>' : ""}
+								<div><i>Created</i>: ${new Date(pointProps.created_at)}</div>
+								<div><i>Updated</i>: ${new Date(pointProps.updated_at)}</div>
+							`
+							
+							const mouseCoordinate = e.mapBrowserEvent.coordinate;
+							overlayRef.current?.setPosition(mouseCoordinate);
+							//console.log(mouseCoordinate, overlay)
+						} else {
+							overlayRef.current?.setPosition(undefined);
+							overlay.innerHTML = "";
+						}
 					} else {
 						overlayRef.current?.setPosition(undefined);
+						overlay.innerHTML = "";
 					}
-				} else {
-					overlayRef.current?.setPosition(undefined);
 				}
 			});
 		}
-
-		/* return () => {
-			if (mapRef.current) {
-				mapRef.current.getInteractions().clear();
-				mapRef.current.setTarget(undefined);
-				mapRef.current.dispose();
-			}
-		} */
 	}, [ref, mapRef, vectorSource]);
 
 	useEffect(() => {
@@ -223,8 +225,9 @@ function MapComponent({ zoom = 3 }: { zoom?: number }): JSX.Element {
 	
 	return (
 		<>
-			<div ref={ref} id="map" />
-			<div id="overlay" className="overlay" ref={refOverlay}/>
+			<div ref={ref} id="map" > 
+				<div id="overlay" className="overlay" ref={refOverlay}/>
+			</div>
 		</>					
 	);
 }

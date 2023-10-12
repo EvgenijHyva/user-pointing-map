@@ -10,7 +10,6 @@ import { useContext } from 'react';
 const Nav = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { user, logout } = useContext(AuthContext);
-	console.log(user)
 	const logoutHandler = async () => {
 		await logout();
 		if (user)
