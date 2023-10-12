@@ -53,11 +53,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       getUser();
 		}
     } catch (err) {
-      setLoading(false);
       const axiosErr = err as AxiosError;
       console.error(err);
       setError(`${axiosErr.response?.statusText}. ${(axiosErr.response?.data as { detail: string}).detail}.`);
     }
+    setLoading(false);
   }
 
   const getUser = async (): Promise<void> => {
@@ -102,11 +102,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout =async (): Promise<void> => {
     Cookies.remove("access");
     setUser(null);
+    setIsAuthenticated(false);
   }
 
   useEffect(() => {
 		if (error) {
-			toast(error, { autoClose: false })
+			toast.error(error, { autoClose: false })
 		}
 	}, [error])
 
