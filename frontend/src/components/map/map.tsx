@@ -7,7 +7,6 @@ import { PointFeature } from "./map-types";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from 'react';
 import OverlayContent from './overlay/overlay-content';
-import TooltipBar from './tooltip/tooltip';
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
 import TileLayer from 'ol/layer/Tile';
@@ -25,6 +24,12 @@ import { pointerMove } from 'ol/events/condition';
 import Overlay from 'ol/Overlay';
 // styles
 import "./map.styles.css";
+
+import AddLocationIcon from '@mui/icons-material/AddLocation';
+import EditLocationIcon from '@mui/icons-material/EditLocation';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { Tooltip, IconButton, AppBar, Toolbar } from '@mui/material';
 
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -165,7 +170,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 						if (mapPoint) {
 							const pointProps = mapPoint.getProperties() as PointFeature;
 							//console.log('Hovered over a point:', pointProps);
-							const overlay = overlayRef.current?.getElement()
 							
 							setOverlayContent(<OverlayContent pointProps={pointProps} />);
 							
@@ -215,11 +219,34 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	
 	return (
 		<div ref={ref} id="map" > 
-			
+			<AppBar position="absolute"  variant='elevation' color='primary' style={{bottom: 0, top: "unset"}}>
+				<Toolbar variant="dense" >
+					<Tooltip title="Add Location">
+						<IconButton  color="inherit" aria-label="add" sx={{ mr: 3 }}>
+							<AddLocationIcon />
+						</IconButton>
+					</Tooltip>
+					<Tooltip title="Edit Location">
+						<IconButton  color="inherit" aria-label="edit" sx={{ mr: 3 }}>
+							<EditLocationIcon />
+						</IconButton>
+					</Tooltip>
+					<Tooltip title="Apply">
+						<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }}>
+							<CheckCircleIcon />
+						</IconButton>
+					</Tooltip>
+					<Tooltip title="Cancel">
+						<IconButton  color="inherit" aria-label="deny" sx={{ mr: 3 }}>
+							<CancelIcon />
+						</IconButton>
+					</Tooltip>
+				</Toolbar>
+			</AppBar>
 			<div id="overlay" className="overlay" ref={refOverlay}>
 				{overlayContent}
 			</div>
-		</div>			
+		</div>	
 	);
 }
 
