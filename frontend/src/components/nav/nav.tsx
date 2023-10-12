@@ -3,6 +3,7 @@ import { AppBar, Toolbar, IconButton, Typography, Stack, Button } from "@mui/mat
 import PublicIcon from '@mui/icons-material/Public';
 import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { AuthContext } from "../../context/AuthContext";
@@ -38,8 +39,8 @@ const Nav = (): JSX.Element => {
 							component="div" 
 							sx={{ flexGrow:1 }} 
 							style={{ alignSelf: "center", color: user?.is_admin ? "#d7ff62" : "white", alignItems: "center" }}>
-							{ user?.is_admin && 
-								<AdminPanelSettingsIcon />
+							{ user?.is_admin ? 
+								<AdminPanelSettingsIcon /> : <PersonOutlineIcon />
 							}
 							{user.username}
 							
