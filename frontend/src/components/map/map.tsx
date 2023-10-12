@@ -7,32 +7,24 @@ import { PointFeature } from "./map-types";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from 'react';
 import OverlayContent from './overlay/overlay-content';
+import TooltipBar from './tooltip/tooltip';
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
+import TileLayer from 'ol/layer/Tile';
 import VectorSource from 'ol/source/Vector';
 import Map from 'ol/Map';
-import { View } from 'ol';
+import { View, Feature } from 'ol';
 import OSM from "ol/source/OSM";
-import TileLayer from 'ol/layer/Tile';
-import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { transform } from 'ol/proj';
-import Style from 'ol/style/Style';
-import Text from 'ol/style/Text';
-import Fill from 'ol/style/Fill';
-import Stroke from 'ol/style/Stroke';
-import Circle from 'ol/style/Circle';
-import Select, { SelectEvent } from "ol/interaction/Select";
+import { Style, Stroke, Text, Fill, Circle } from "ol/style";
+import RegularShape from 'ol/style/RegularShape';
+import { SelectEvent } from "ol/interaction/Select";
+import { Draw, Modify, Snap, Select } from "ol/interaction";
 import { pointerMove } from 'ol/events/condition';
 import Overlay from 'ol/Overlay';
-import RegularShape from 'ol/style/RegularShape';
 // styles
 import "./map.styles.css";
-// icons from material UI
-import AddLocationIcon from '@mui/icons-material/AddLocation';
-import EditLocationIcon from '@mui/icons-material/EditLocation';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -45,6 +37,8 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const vectorSource = useMemo(() => new VectorSource(), []);
 
 	const [isDrawing, setIsDrawing] = useState<boolean>(false);
+	const [draw, setDraw] = useState<Draw | null>(null);
+	const [snap, setSnap] = useState<Snap | null>(null);
 	const [overlayContent, setOverlayContent] = useState<null | JSX.Element>(null);
 	const [locations, setLocations] = useState<PointResponseData[]>([]);
 	
@@ -150,7 +144,8 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				condition: pointerMove
 			});
 			mapRef.current.addInteraction(select);
-			
+
+			// overlay
 			overlayRef.current = new Overlay({
 				element: refOverlay.current as  HTMLDivElement,
 				positioning: "bottom-center",
@@ -220,6 +215,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	
 	return (
 		<div ref={ref} id="map" > 
+			
 			<div id="overlay" className="overlay" ref={refOverlay}>
 				{overlayContent}
 			</div>

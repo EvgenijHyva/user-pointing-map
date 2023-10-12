@@ -1,5 +1,5 @@
 
-import { AppBar, Toolbar, IconButton, Typography, Stack, Button } from "@mui/material";
+import { AppBar, Toolbar, IconButton, Typography, Stack, Button, Tooltip } from "@mui/material";
 import PublicIcon from '@mui/icons-material/Public';
 import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -20,46 +20,55 @@ const Nav = (): JSX.Element => {
 	return (
 		<AppBar position='static'>
 			<Toolbar>
-				<IconButton 
-					size='large' 
-					edge="start" 
-					area-label="logo"
-					onClick={() => navigate("/")}
-					style={{ color: "gold" }}
-				>
-					<PublicIcon  />
-				</IconButton>
+				<Tooltip title="Main page" enterDelay={500} leaveDelay={200}>
+					<IconButton 
+						size='large' 
+						edge="start" 
+						area-label="logo"
+						onClick={() => navigate("/")}
+						style={{ color: "gold" }}
+					>
+						<PublicIcon  />
+					</IconButton>
+				</Tooltip>
 				<Typography variant='h6' component="div" sx={{ flexGrow:1 }}>
 					User Pointing Map
 				</Typography>
 				<Stack direction="row" spacing={2}>
 					{ user ? 
 					<>
-						<Typography variant='h6' 
-							component="div" 
-							sx={{ flexGrow:1 }} 
-							style={{ alignSelf: "center", color: user?.is_admin ? "#d7ff62" : "white", alignItems: "center" }}>
-							{ user?.is_admin ? 
-								<AdminPanelSettingsIcon /> : <PersonOutlineIcon />
-							}
-							{user.username}
-							
-						</Typography>
-						<IconButton 
-							size='large' 
-							edge="end" 
-							area-label="logout-button"
-							onClick={logoutHandler}
-							style={{ color: "#00ff0a" }}
-						> 
-							<LogoutTwoToneIcon  />
-						</IconButton></> : <>
-							<Button 
-								color='inherit' 
-								onClick={() => navigate("/auth")}
-								>
-									Login/Register
-							</Button>
+						<Tooltip title={`Logget as ${user?.is_admin ? "admin" : "normal user"}`}>
+							<Typography variant='h6' 
+								component="div" 
+								sx={{ flexGrow:1 }} 
+								style={{ alignSelf: "center", color: user?.is_admin ? "#d7ff62" : "white", alignItems: "center" }}>
+								{ user?.is_admin ? 
+									<AdminPanelSettingsIcon /> : <PersonOutlineIcon />
+								}
+								{user.username}
+								
+							</Typography>
+						</Tooltip>
+						<Tooltip title="Logout" enterDelay={100} enterNextDelay={500} leaveDelay={200}>
+							<IconButton 
+								size='large' 
+								edge="end" 
+								area-label="logout-button"
+								onClick={logoutHandler}
+								style={{ color: "#00ff0a" }}
+							> 
+								<LogoutTwoToneIcon  />
+							</IconButton>
+						</Tooltip>
+						</> : <>
+							<Tooltip title="Auth page" leaveDelay={200}>
+								<Button 
+									color='inherit' 
+									onClick={() => navigate("/auth")}
+									>
+										Login/Register
+								</Button>
+							</Tooltip>
 						</>
 					}
 				</Stack>
