@@ -28,21 +28,43 @@ import Overlay from 'ol/Overlay';
 import RegularShape from 'ol/style/RegularShape';
 // styles
 import "./map.styles.css";
-
+// icons from material UI
+import AddLocationIcon from '@mui/icons-material/AddLocation';
+import EditLocationIcon from '@mui/icons-material/EditLocation';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const refOverlay = useRef<HTMLDivElement | null>(null);
 	const overlayRef = useRef<Overlay | null>(null);
-	const [overlayContent, setOverlayContent] = useState<null | JSX.Element>(null);
 	const mapRef = useRef<Map | null>(null);
+
 	const { user } = useContext(AuthContext);
 	
 	const vectorSource = useMemo(() => new VectorSource(), []);
-	
+
+	const [isDrawing, setIsDrawing] = useState<boolean>(false);
+	const [overlayContent, setOverlayContent] = useState<null | JSX.Element>(null);
 	const [locations, setLocations] = useState<PointResponseData[]>([]);
 	
 	const backend = new BackendService();
+
+	const ownPoint = (pointRadius: number, location: PointResponseData ) => {
+		return new RegularShape({ // Own points 
+			points: 5,
+			radius1: pointRadius,
+			radius2: pointRadius / 1.8,
+			angle: 0, 
+			fill: new Fill({
+				color: location.owner?.color ?? location.textColor
+			}),
+			stroke: new Stroke({
+				color: 'white',
+				width: 2
+			})
+		});
+	}
 
 	const createPointStyles = (location: PointResponseData): Style[] => {
 		const own = user && user?.username === location.owner?.username;
@@ -74,19 +96,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 					color: 'white',
 					width: 2,
 				})
-			}) : new RegularShape({ // Own points 
-				points: 5,
-				radius1: pointRadius,
-				radius2: pointRadius / 1.8,
-				angle: 0, 
-				fill: new Fill({
-					color: location.owner?.color ?? location.textColor
-				}),
-				stroke: new Stroke({
-					color: 'white',
-					width: 2
-				})
-			}),
+			}) : ownPoint(pointRadius, location)
 		})
 		return [pointStyle, pointTextStyle]
 	}
@@ -166,7 +176,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 							
 							const mouseCoordinate = e.mapBrowserEvent.coordinate;
 							overlayRef.current?.setPosition(mouseCoordinate);
-							console.log(mouseCoordinate)
+							//console.log(mouseCoordinate)
 						} else {
 							overlayRef.current?.setPosition(undefined);
 							setOverlayContent(null);

@@ -10,7 +10,6 @@ interface Point {
 const OverlayContent = ({ pointProps }: Point): JSX.Element => {
 	const { user } = useContext(AuthContext);
 	const canSee = user?.is_admin || (pointProps.owner?.username === user?.username && !undefined);
-	console.log(canSee, user)
 	return (
 		<div>
 			<div>
