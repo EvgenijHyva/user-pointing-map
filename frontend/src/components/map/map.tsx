@@ -1,11 +1,12 @@
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import BackendService from '../../service/service';
 import { PointResponseData } from '../../service/backend-response.types';
 import { PointFeature } from "./map-types";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from 'react';
+import OverlayContent from './overlay/overlay-content';
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
@@ -32,9 +33,9 @@ import "./map.styles.css";
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const refOverlay = useRef<HTMLDivElement | null>(null);
-	const overlayRef = useRef<Overlay | null>(null)
+	const overlayRef = useRef<Overlay | null>(null);
+	const [overlayContent, setOverlayContent] = useState<null | JSX.Element>(null);
 	const mapRef = useRef<Map | null>(null);
-	const controller = new AbortController();
 	const { user } = useContext(AuthContext);
 	
 	const vectorSource = useMemo(() => new VectorSource(), []);
@@ -161,31 +162,18 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 							//console.log('Hovered over a point:', pointProps);
 							const overlay = overlayRef.current?.getElement()
 							
-							overlay!.innerHTML = `
-								<div>
-									<i>Owner</i> - <b>${pointProps.owner?.username ?? "deleted"} ${
-									pointProps.owner?.first_name ? "(" + 
-									pointProps.owner?.first_name + " " + 
-									pointProps.owner?.last_name + ")" : ""}</b>
-								</div><hr>
-								<div><i>Label</i>: ${pointProps.label || "Not set"}</div>
-								<div><i>Name</i>: ${pointProps.name}</div>
-								<div><i>Point</i>: ${pointProps.initial_point}</div>
-								${ pointProps.comment ? '<div><i>Comment</i>: '+ pointProps.comment +'</div>' : ""}
-								<div><i>Created</i>: ${new Date(pointProps.created_at)}</div>
-								<div><i>Updated</i>: ${new Date(pointProps.updated_at)}</div>
-							`
+							setOverlayContent(<OverlayContent pointProps={pointProps} />);
 							
 							const mouseCoordinate = e.mapBrowserEvent.coordinate;
 							overlayRef.current?.setPosition(mouseCoordinate);
 							console.log(mouseCoordinate)
 						} else {
 							overlayRef.current?.setPosition(undefined);
-							overlay.innerHTML = "";
+							setOverlayContent(null);
 						}
 					} else {
 						overlayRef.current?.setPosition(undefined);
-						overlay.innerHTML = "";
+						setOverlayContent(null);
 					}
 				}
 			});
@@ -207,9 +195,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		}
   		fetchData();
 
-		return () => {
-			controller.abort();
-		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
@@ -225,7 +210,9 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	
 	return (
 		<div ref={ref} id="map" > 
-			<div id="overlay" className="overlay" ref={refOverlay}/>
+			<div id="overlay" className="overlay" ref={refOverlay}>
+				{overlayContent}
+			</div>
 		</div>			
 	);
 }
