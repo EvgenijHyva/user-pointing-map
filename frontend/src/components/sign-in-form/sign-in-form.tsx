@@ -14,8 +14,8 @@ const SignInForm = (): JSX.Element => {
 	}
 
 	return (
-		<Grid  container justifyContent="center" alignItems="center"> 
-			<Paper elevation={10} className='paper-style'>
+		<Grid  container justifyContent="center" alignItems="center" > 
+			<Paper elevation={10} className='paper-style' >
 				<Grid container direction="column" alignItems="center">
 					<Avatar style={{ background: "green"}}><PeopleTwoToneIcon  /></Avatar>
 					<h2>Sign In</h2>

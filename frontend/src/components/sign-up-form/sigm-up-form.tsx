@@ -19,7 +19,7 @@ const SignUpForm = (): JSX.Element => {
 
 	return (
 		<Grid  container justifyContent="center" alignItems="center" > 
-			<Paper elevation={10} className='paper-style'>
+			<Paper elevation={10} className='paper-style' style={{ maxHeight: "100vh"}}>
 				<Grid container direction="column" alignItems="center">
 					<Avatar> <PersonAddIcon /> </Avatar>
 					<h2>Sign Up</h2>

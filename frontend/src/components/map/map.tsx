@@ -219,7 +219,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	
 	return (
 		<div ref={ref} id="map" > 
-			<AppBar position="absolute"  variant='elevation' color='primary' style={{bottom: 0, top: "unset"}}>
+			<AppBar position="absolute"  variant='elevation' color='transparent' style={{bottom: 0, top: "unset"}}>
 				<Toolbar variant="dense" >
 					<Tooltip title="Add Location">
 						<IconButton  color="inherit" aria-label="add" sx={{ mr: 3 }}>
