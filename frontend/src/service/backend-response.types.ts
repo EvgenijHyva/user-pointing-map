@@ -12,19 +12,23 @@ export interface Owner {
 export interface AppUser extends Owner{
 }
 
-export interface PointBase {
+interface PointText {
   label: string | null;
   title: string;
   comment: string | null;
+}
+export interface PointBase extends PointText {
   point: string;
 }
+
 export interface PointData extends PointBase {
   textColor: string;
 }
 
-export interface NewPointDTO extends PointBase {
+export interface NewPointDTO extends PointText {
   created_at: Date;
   updated_at: Date;
+  point: number[];
 }
 
 export interface PointResponseData extends PointData {

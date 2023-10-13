@@ -19,7 +19,7 @@ const ConfirmationModal = ({ isOpen, onConfirm, onCancel, title, point }: ModalP
 			...formData as PointBase,
 			created_at: new Date(),
 			updated_at: new Date(),
-			point: point ? `${point[0]}, ${point[1]}` : ""
+			point: point?.length === 2 ? point : []
 		}
 		onConfirm(data);
 	}
