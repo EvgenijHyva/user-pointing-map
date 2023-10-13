@@ -64,6 +64,27 @@ class BackendService {
 		}
 	}
 
+	changePoint = async (data: PointResponseData): Promise<PointResponseData | undefined> => {
+		const endpoint = `${this.url}/api/points/`;
+		this.config.method = "put";
+		this.config.withCredentials = true;
+		const token = Cookies.get("access") ;
+		this.config.headers = {
+			...this.config.headers,
+			'X-CSRFToken': Cookies.get("csrftoken")
+		};
+		if (!token) {
+			return;
+		}
+		try {
+			const response = await axios.post(endpoint, data, this.config);
+			return response.data;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+
 	getUser = async (): Promise<AppUser | undefined> => {
 		const endpoint = `${this.url}/api/users/me/`;
 		this.config.method = "get";
