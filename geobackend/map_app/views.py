@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from django.contrib.gis.geos import Point
+from django.shortcuts import get_object_or_404
 import os
 import jwt
 from .serializer import LocationSerializer, OwnedLocationsSerializer
@@ -40,8 +41,8 @@ class LocationView(APIView):
 		data=request.data
 		token = request.COOKIES.get("access") or request.COOKIES.get("jwt")
 
-		print(data, "data")
-		print(request.COOKIES)
+		#print(data, "data")
+		#print(request.COOKIES)
 
 		if not token:
 			raise AuthenticationFailed("Unauthenticated! Token not provided")
@@ -53,10 +54,21 @@ class LocationView(APIView):
 		
 		user = AppUser.objects.get(id=payload["id"])
 		
-		data["owner"] = user.id
-		data["point"] = Point([float(num) for num in data.get("point").split(",")])
-		serializer = LocationSerializer(data=data)
-		if serializer.is_valid(raise_exception=True):
-			serializer.save()
+		if user.is_staff or user.is_superuser or user.pk == data.get("owner").get("id"):
+			data["point"] = Point(list(data["point"]))
+			# if location user is null, then the admin will own location
+			
+			data["owner"] = AppUser.objects.get(pk=data.get("owner").get("id")) or user 
+			location = get_object_or_404(Location, pk=data.get("id"))
 
+			for key, value in data.items():
+				setattr(location, key, value)
+			print("NOW", location)
+			location.save()
+
+			serializer = LocationSerializer(location)
+
+			return Response(serializer.data)
+		else:
+			raise PermissionDenied("Only poin owner or admins can update")
 		

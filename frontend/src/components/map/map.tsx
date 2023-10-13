@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { useEffect, useRef, useState, useMemo, useContext, useCallback } from 'react';
 import BackendService from '../../service/service';
-import { NewPointDTO, Owner, PointData, PointResponseData } from '../../service/backend-response.types';
+import { NewPointDTO, Owner,  PointResponseData } from '../../service/backend-response.types';
 import { PointFeature } from "./map-types";
 import { AuthContext } from "../../context/AuthContext";
 import OverlayContent from './overlay/overlay-content';
@@ -42,7 +42,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	
 	const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
 	const [isDrawing, setIsDrawing] = useState<boolean>(false);
-	const [snap, setSnap] = useState<Snap | null>(null);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [overlayContent, setOverlayContent] = useState<null | JSX.Element>(null);
 	const [locations, setLocations] = useState<PointResponseData[]>([]);
@@ -133,15 +132,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		});
 	}
 
-	/*
-	const modifyExistPointInteraction = () => {
-		const snapInteraction = new Snap({ source: vectorSource });
-		const modify = new Modify({ source: vectorSource });
-		mapRef.current?.addInteraction(snapInteraction);
-		mapRef.current?.addInteraction(modify);
-	}
-	*/
-
 	const cancelHandler = () => {
 		setIsDrawing(false);
 		setIsEditing(false);
@@ -155,12 +145,17 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				if (mapPoint) {
 					const pointProps = mapPoint.getProperties() as PointFeature;
 					//console.log('Hovered over a point:', pointProps);
-					
-					if (pointProps.name) {
-						setOverlayContent(<OverlayContent pointProps={pointProps} />);
-						const mouseCoordinate = e.mapBrowserEvent.coordinate;
-						overlayRef.current?.setPosition(mouseCoordinate);
-					}
+					setIsEditing((prevIsEditing) => {
+						if (!prevIsEditing) {
+							setOverlayContent(<OverlayContent pointProps={pointProps} />);
+							const mouseCoordinate = e.mapBrowserEvent.coordinate;
+							overlayRef.current?.setPosition(mouseCoordinate);
+						} else {
+							overlayRef.current?.setPosition(undefined);
+							setOverlayContent(null);
+						}
+						return prevIsEditing;
+					})		
 					//console.log(mouseCoordinate)
 				} else {
 					overlayRef.current?.setPosition(undefined);
@@ -184,6 +179,11 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			setLocations((locations) => [...locations, newPoint])
 		}
 		console.log(point)
+	}
+
+	const saveEditingHandler =async (data: any) => {
+		console.log(newGeometry, "Geometry")
+		// TODO
 	}
 
 	const handleMapClick = useCallback((e: MapBrowserEvent<PointerEvent>) => {
@@ -218,7 +218,8 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 			// interactions 
 			const select = new Select({
-				condition: pointerMove
+				condition: pointerMove,
+				hitTolerance: 15
 			});
 			mapRef.current.addInteraction(select);
 
@@ -240,8 +241,32 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	}, []);
 
 	useEffect(() => {
-		
-	}, [newGeometry])
+		const select = mapRef.current?.getInteractions().getArray().find(
+			interaction => interaction instanceof Select
+		);
+		if(isEditing) {
+			const snapInteraction = new Snap({ source: vectorSource, pixelTolerance: 20 });
+			const modify = new Modify({ source: vectorSource });
+			mapRef.current?.addInteraction(snapInteraction);
+			mapRef.current?.addInteraction(modify);
+			if (select) {
+				select.setActive(false);
+			}
+		} else {
+			const snapInteraction = mapRef.current?.getInteractions().getArray().find(
+				(interaction) => interaction instanceof Snap
+			)
+			if (snapInteraction)
+				mapRef.current?.removeInteraction(snapInteraction);
+			const modify = mapRef.current?.getInteractions().getArray().find(
+				(interaction) => interaction instanceof Modify
+			)
+			if(modify)
+				mapRef.current?.removeInteraction(modify);
+			if (select)
+				select.setActive(true);
+		}
+	}, [isEditing, vectorSource])
 
 
 	useEffect(() => {
@@ -258,7 +283,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			}
 		}
   		fetchData();
-
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
@@ -285,7 +309,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 					}
 					{ (isEditing) &&
 						<Tooltip title="Apply">
-							<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }} onClick={() => {}}>
+							<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }} onClick={saveEditingHandler}>
 								<CheckCircleIcon />
 							</IconButton>
 						</Tooltip>
