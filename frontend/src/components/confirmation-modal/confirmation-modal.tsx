@@ -1,15 +1,17 @@
 import {  Dialog, DialogTitle, DialogContent, Grid, TextField, Button } from '@mui/material';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { NewPointDTO, PointBase } from '../../service/backend-response.types';
+import { Coordinate } from 'ol/coordinate';
 
 interface ModalProps {
+	point: Coordinate | null;
 	isOpen: boolean;
 	onConfirm: (data: any) => void;
 	onCancel: () => void;
 	title: string;
 }
 
-const ConfirmationModal = ({ isOpen, onConfirm, onCancel, title }: ModalProps): JSX.Element => {
+const ConfirmationModal = ({ isOpen, onConfirm, onCancel, title, point }: ModalProps): JSX.Element => {
 	const { register, handleSubmit } = useForm();
 
 	const submitHandler: SubmitHandler<FieldValues> = async (formData) => {
@@ -17,9 +19,9 @@ const ConfirmationModal = ({ isOpen, onConfirm, onCancel, title }: ModalProps): 
 			...formData as PointBase,
 			created_at: new Date(),
 			updated_at: new Date(),
-			point: ""
+			point: point ? `${point[0]}, ${point[1]}` : ""
 		}
-		console.log(data, "data")
+		onConfirm(data);
 	}
 	return (
 		<Dialog open={isOpen} maxWidth="md">
@@ -57,9 +59,10 @@ const ConfirmationModal = ({ isOpen, onConfirm, onCancel, title }: ModalProps): 
 						Confirm 
 						</Button>
 						<Button 
-							type="submit" 
+							type="reset" 
 							color="error" 
 							variant="contained" 
+							onClick={onCancel}
 						> 
 						Cancel 
 						</Button>

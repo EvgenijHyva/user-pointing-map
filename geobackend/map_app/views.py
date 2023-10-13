@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.gis.geos import Point
 import os
 import jwt
 from .serializer import LocationSerializer, OwnedLocationsSerializer
@@ -18,9 +19,7 @@ class LocationView(APIView):
 	
 	def post(self, request: Request):
 		data=request.data
-		token = request.COOKIES.get("jwt")
-		print(request.COOKIES)
-		
+		token = request.COOKIES.get("access") or request.COOKIES.get("jwt")
 		if not token:
 			raise AuthenticationFailed("Unauthenticated! Token not provided")
 		
@@ -31,7 +30,9 @@ class LocationView(APIView):
 		
 		user = AppUser.objects.get(id=payload["id"])
 		data["owner"] = user.id
+		data["point"] = Point([float(num) for num in data.get("point").split(",")])
 		serializer = LocationSerializer(data=data)
 		if serializer.is_valid(raise_exception=True):
 			serializer.save()
+			
 			return Response(serializer.data)

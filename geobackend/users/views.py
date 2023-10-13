@@ -61,7 +61,7 @@ class UserLogin(APIView):
 class UserView(APIView):
 	def get(self, request: Request) -> Response:
 		token = request.COOKIES.get("access")
-		
+		print(request.COOKIES)
 		if not token:
 			raise AuthenticationFailed("Unauthenticated! Token not provided")
 		

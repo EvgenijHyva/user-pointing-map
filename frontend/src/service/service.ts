@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { PointData, PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO } from './backend-response.types';
+import { PointData, PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO } from './backend-response.types';
 import Cookies from "js-cookie";
 
 
@@ -23,7 +23,7 @@ class BackendService {
 			responseType: "json",
 			signal: this.controller.signal,
 			headers: {
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			}
 		};
 		if (url)
@@ -33,6 +33,7 @@ class BackendService {
 	getPoints = async (): Promise<PointResponseData[]>=> {
 		const endpoint = `${this.url}/api/points/`;
 		this.config.method = "get";
+
 		try {
 			const response = await axios.get<PointResponseData[]>(endpoint, this.config);
 			return response.data;
@@ -42,9 +43,18 @@ class BackendService {
 		}
 	}
 
-	postPoint = async (data: PointData): Promise<AxiosResponse<PointResponseData>> => {
+	postPoint = async (data: NewPointDTO): Promise<PointResponseData | undefined> => {
 		const endpoint = `${this.url}/api/points/`;
 		this.config.method = "post";
+		this.config.withCredentials = true;
+		const token = Cookies.get("access") ;
+		this.config.headers = {
+			...this.config.headers,
+			'X-CSRFToken': Cookies.get("csrftoken")
+		};
+		if (!token) {
+			return;
+		}
 		try {
 			const response = await axios.post(endpoint, data, this.config);
 			return response.data;
@@ -66,7 +76,6 @@ class BackendService {
 
 		this.config.headers = {
 			...this.config.headers,
-			//Cookie: `jwt=${token}`
 		}
 
 		try {

@@ -1,26 +1,27 @@
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useContext, useCallback } from 'react';
 import BackendService from '../../service/service';
-import { PointResponseData } from '../../service/backend-response.types';
+import { NewPointDTO, Owner, PointData, PointResponseData } from '../../service/backend-response.types';
 import { PointFeature } from "./map-types";
 import { AuthContext } from "../../context/AuthContext";
-import { useContext } from 'react';
 import OverlayContent from './overlay/overlay-content';
+import ConfirmationModal from '../confirmation-modal/confirmation-modal';
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
 import TileLayer from 'ol/layer/Tile';
 import VectorSource from 'ol/source/Vector';
 import Map from 'ol/Map';
-import { View, Feature } from 'ol';
+import { View, Feature, MapBrowserEvent } from 'ol';
 import OSM from "ol/source/OSM";
 import { Point } from 'ol/geom';
-import { transform } from 'ol/proj';
+import { get, transform } from 'ol/proj';
 import { Style, Stroke, Text, Fill, Circle } from "ol/style";
 import RegularShape from 'ol/style/RegularShape';
 import { SelectEvent } from "ol/interaction/Select";
-import { Draw, Modify, Snap, Select } from "ol/interaction";
+import { Modify, Snap, Select } from "ol/interaction";
 import { pointerMove } from 'ol/events/condition';
+import { Coordinate } from 'ol/coordinate';
 import Overlay from 'ol/Overlay';
 // styles
 import "./map.styles.css";
@@ -39,17 +40,19 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 	const { user } = useContext(AuthContext);
 	
-	const vectorSource = useMemo(() => new VectorSource(), []);
-
+	const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
 	const [isDrawing, setIsDrawing] = useState<boolean>(false);
-	const [draw, setDraw] = useState<Draw | null>(null);
 	const [snap, setSnap] = useState<Snap | null>(null);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [overlayContent, setOverlayContent] = useState<null | JSX.Element>(null);
 	const [locations, setLocations] = useState<PointResponseData[]>([]);
+	const [newGeometry, setNewGeometry] = useState<null | Coordinate>(null)
+
+	const vectorSource = useMemo(() => new VectorSource(), []);
 	
 	const backend = new BackendService();
 
-	const ownPoint = (pointRadius: number, location: PointResponseData ) => {
+	const ownPoint = (pointRadius: number, location: PointResponseData ): RegularShape => {
 		return new RegularShape({ // Own points 
 			points: 5,
 			radius1: pointRadius,
@@ -130,8 +133,76 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		});
 	}
 
+	/*
+	const modifyExistPointInteraction = () => {
+		const snapInteraction = new Snap({ source: vectorSource });
+		const modify = new Modify({ source: vectorSource });
+		mapRef.current?.addInteraction(snapInteraction);
+		mapRef.current?.addInteraction(modify);
+	}
+	*/
+
+	const cancelHandler = () => {
+		setIsDrawing(false);
+		setIsEditing(false);
+	}
+
+	const handleSelect = useCallback((e: SelectEvent) => {
+		const overlay = overlayRef.current?.getElement();
+		if (overlay) {
+			if (e.selected.length > 0) {
+				const mapPoint = e.selected.find((feature) => feature.getGeometry() instanceof Point)
+				if (mapPoint) {
+					const pointProps = mapPoint.getProperties() as PointFeature;
+					//console.log('Hovered over a point:', pointProps);
+					
+					if (pointProps.name) {
+						setOverlayContent(<OverlayContent pointProps={pointProps} />);
+						const mouseCoordinate = e.mapBrowserEvent.coordinate;
+						overlayRef.current?.setPosition(mouseCoordinate);
+					}
+					//console.log(mouseCoordinate)
+				} else {
+					overlayRef.current?.setPosition(undefined);
+					setOverlayContent(null);
+				}
+			} else {
+				overlayRef.current?.setPosition(undefined);
+				setOverlayContent(null);
+			}
+		}
+	}, [overlayRef])
+
+	const saveHandler = async (newPoint: NewPointDTO): Promise<void> => {
+		setDialogIsOpen(false);
+		const point = await backend.postPoint(newPoint)
+		if (point) {
+			const newPoint = {
+				...point,
+				owner: user as Owner
+			} as PointResponseData
+			setLocations((locations) => [...locations, newPoint])
+		}
+		console.log(point)
+	}
+
+	const handleMapClick = useCallback((e: MapBrowserEvent<PointerEvent>) => {
+		const clickedCoord = mapRef.current?.getCoordinateFromPixel(e.pixel) as Coordinate;
+		const transPoint = transform(clickedCoord, "EPSG:3857", "EPSG:4326");
+		setNewGeometry(transPoint);
+		setIsDrawing((prevIsDrawing) => {
+			if (prevIsDrawing) {
+				setDialogIsOpen((prevDialogIsOpen) => !prevDialogIsOpen);
+			}
+			return prevIsDrawing;
+		})
+	}, [])
+
 	useEffect(() => {
 		if (ref.current && !mapRef.current && overlayRef && refOverlay) {
+			// Limit multi-world panning to one world east and west of the real world.
+			// Geometry coordinates have to be within that range.
+			const extent = get('EPSG:3857')?.getExtent().slice();
 			mapRef.current = new Map({
 				layers: [
 					new TileLayer({ source: new OSM() }),
@@ -139,12 +210,13 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				],
 				view: new View({ 
 					center: [1641912, 7943663], 
-					zoom: 4 
+					zoom: 4,
+					extent
 				}),
 				target: ref.current
 			});
 
-			// interactions
+			// interactions 
 			const select = new Select({
 				condition: pointerMove
 			});
@@ -160,34 +232,17 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			
 			mapRef.current.addOverlay(overlayRef.current);
 
-			select.on("select", (e: SelectEvent) => {
+			select.on("select", handleSelect);
 
-				const overlay = overlayRef.current?.getElement();
-
-				if (overlay) {
-					if (e.selected.length > 0) {
-						const mapPoint = e.selected.find((feature) => feature.getGeometry() instanceof Point)
-						if (mapPoint) {
-							const pointProps = mapPoint.getProperties() as PointFeature;
-							//console.log('Hovered over a point:', pointProps);
-							
-							setOverlayContent(<OverlayContent pointProps={pointProps} />);
-							
-							const mouseCoordinate = e.mapBrowserEvent.coordinate;
-							overlayRef.current?.setPosition(mouseCoordinate);
-							//console.log(mouseCoordinate)
-						} else {
-							overlayRef.current?.setPosition(undefined);
-							setOverlayContent(null);
-						}
-					} else {
-						overlayRef.current?.setPosition(undefined);
-						setOverlayContent(null);
-					}
-				}
-			});
+			mapRef.current.on("click", handleMapClick);
 		}
-	}, [ref, mapRef, vectorSource]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		
+	}, [newGeometry])
+
 
 	useEffect(() => {
 		async function fetchData() {
@@ -210,7 +265,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	useEffect(() => {
 		renderPointsToMap();
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [locations])
+	}, [locations, user])
 
 	useEffect(() => {
 		mapRef.current?.getView().setZoom(zoom); 
@@ -221,31 +276,46 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		<div ref={ref} id="map" > 
 			<AppBar position="absolute"  variant='elevation' color='transparent' style={{bottom: 0, top: "unset"}}>
 				<Toolbar variant="dense" >
-					<Tooltip title="Add Location">
-						<IconButton  color="inherit" aria-label="add" sx={{ mr: 3 }}>
-							<AddLocationIcon />
-						</IconButton>
-					</Tooltip>
-					<Tooltip title="Edit Location">
-						<IconButton  color="inherit" aria-label="edit" sx={{ mr: 3 }}>
-							<EditLocationIcon />
-						</IconButton>
-					</Tooltip>
-					<Tooltip title="Apply">
-						<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }}>
-							<CheckCircleIcon />
-						</IconButton>
-					</Tooltip>
-					<Tooltip title="Cancel">
-						<IconButton  color="inherit" aria-label="deny" sx={{ mr: 3 }}>
-							<CancelIcon />
-						</IconButton>
-					</Tooltip>
+					{ !isDrawing && !isEditing &&
+						<Tooltip title="Add Location">
+							<IconButton  color="inherit" aria-label="add" sx={{ mr: 3 }} onClick={() => setIsDrawing(true)}>
+								<AddLocationIcon />
+							</IconButton>
+						</Tooltip>  
+					}
+					{ (isEditing) &&
+						<Tooltip title="Apply">
+							<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }} onClick={() => {}}>
+								<CheckCircleIcon />
+							</IconButton>
+						</Tooltip>
+					}
+					{ (isEditing || isDrawing) &&
+						<Tooltip title="Cancel">
+							<IconButton  color="inherit" aria-label="deny" sx={{ mr: 3 }} onClick={cancelHandler}>
+								<CancelIcon />
+							</IconButton>
+						</Tooltip>
+					}
+					{ !isDrawing && !isEditing &&
+						<Tooltip title="Edit Location">
+							<IconButton  color="inherit" aria-label="edit" sx={{ mr: 3 }} onClick={() => setIsEditing(true)}>
+								<EditLocationIcon />
+							</IconButton>
+						</Tooltip>
+					}
 				</Toolbar>
 			</AppBar>
 			<div id="overlay" className="overlay" ref={refOverlay}>
 				{overlayContent}
 			</div>
+			<ConfirmationModal 
+				isOpen={dialogIsOpen} 
+				onCancel={() => setDialogIsOpen(false)} 
+				onConfirm={saveHandler}
+				title={"Create point?"}
+				point={newGeometry}
+				/>
 		</div>	
 	);
 }
