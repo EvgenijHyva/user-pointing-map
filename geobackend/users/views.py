@@ -16,7 +16,7 @@ class UserRegister(APIView):
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 
-		print(serializer.data)
+		#print(serializer.data)
 		payload = {
 			"id": serializer.data["id"],
 			"exp": datetime.datetime.utcnow() + datetime.timedelta(days=30),
@@ -61,7 +61,7 @@ class UserLogin(APIView):
 class UserView(APIView):
 	def get(self, request: Request) -> Response:
 		token = request.COOKIES.get("access")
-		print(request.COOKIES)
+		#print(request.COOKIES)
 		if not token:
 			raise AuthenticationFailed("Unauthenticated! Token not provided")
 		

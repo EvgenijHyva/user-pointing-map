@@ -57,3 +57,12 @@ export interface RegisterDTO extends LoginDTO {
   last_name?: string;
   age?: number | null;
 }
+
+interface UpdatedPointResponseData extends PointData{
+  owner: number
+}
+
+export interface UpdatedPointsResponse {
+  updated: UpdatedPointResponseData[];
+  skiped: number;
+}

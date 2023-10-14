@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO, UpdatePointDto } from './backend-response.types';
+import { PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO, UpdatePointDto, UpdatedPointsResponse } from './backend-response.types';
 import Cookies from "js-cookie";
 
 
@@ -65,7 +65,7 @@ class BackendService {
 		}
 	}
 
-	changePoints = async (data: UpdatePointDto[]): Promise<PointResponseData | undefined> => {
+	changePoints = async (data: UpdatePointDto[]): Promise<UpdatedPointsResponse | undefined> => {
 		const endpoint = `${this.url}/api/points/`;
 		this.config.method = "put";
 		this.config.withCredentials = true;
@@ -78,7 +78,7 @@ class BackendService {
 			return;
 		}
 		try {
-			const response = await axios.post(endpoint, data, this.config);
+			const response = await axios.put(endpoint, data, this.config);
 			return response.data;
 		} catch (err) {
 			console.log(err);

@@ -213,22 +213,49 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				console.error(axiosErr)
 		}
 	}
-	// TODO
+
 	const saveEditingDeletingHandler = async (): Promise<void> => {
 		if (isEditing && editedPoints.length) {
 			await editPoints()
-			// Editing func
 		}
 		if (isDeleting && newGeometry) {
 			await deletePoint(newGeometry)
 		}
 	}
 
-	// TODO SEND request
 	const editPoints = async (): Promise<void> => {
-		console.log(editedPoints)
-		setIsEditing(false)
-		
+		try {
+			const response = await backend.changePoints(editedPoints);
+			if (!response?.updated.length) {
+				toast.warning(`0 points was updated, skiped ${response?.skiped || 0}.`);
+			} else {
+				toast.success(`Updated ${response.updated.length} points.`);
+				const updatePoints = response.updated;
+				console.log("before change", updatePoints)
+				const points = updatePoints.map((point) =>  {
+					const checkUser = locations.find((loc) => { console.log(loc.owner?.id === point.owner); return loc.owner?.id === point.owner})?.owner;
+					console.log("POINT:", point, "CHECK:", checkUser)
+					return ({ ...point, owner: checkUser ? checkUser : user as Owner } as PointResponseData )
+				})
+				console.log("after change", points)
+				console.log(points)
+				const poinst_ids = points.map((pointObj) => pointObj.id as number) 
+				setLocations((locations) => {
+					const filteredLocations = locations.filter(
+						(location) => !poinst_ids.includes(location.id as number)
+					)
+					return [...filteredLocations, ...points];
+				})
+			}
+		} catch (err) {
+			const axiosErr = (err as  AxiosError)
+			if (axiosErr.message !== "canceled")
+				toast.error(axiosErr.message, { autoClose: false });
+			else
+				console.error(axiosErr)
+		}
+
+		setIsEditing(false);
 	}
 
 	const deletePoint = async (newGeometry: Coordinate): Promise<void> => {
@@ -306,7 +333,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		setEditDialogIsOpen(false);
 		setEditedPoints((editedPoints) => [...editedPoints.filter((point) => point.id !== newPoint.id), newPoint]);
 		toast.info("Point changes is recorder, you can continue to edit. Apply changes to save them permanently", 
-			{ position: "top-center", autoClose: 10000 }
+			{ autoClose: 3000, delay: 1000 }
 		)
 	}
 
