@@ -309,7 +309,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		const select = mapRef.current?.getInteractions().getArray().find(
 			interaction => interaction instanceof Select
 		);
-		if(isEditing) {
+		if(isEditing || isDeleting) {
 			const snapInteraction = new Snap({ source: vectorSource, pixelTolerance: 20 });
 			const modify = new Modify({ source: vectorSource });
 			mapRef.current?.addInteraction(snapInteraction);
@@ -331,7 +331,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			if (select)
 				select.setActive(true);
 		}
-	}, [isEditing, vectorSource])
+	}, [isEditing, vectorSource, isDeleting])
 
 
 	useEffect(() => {
