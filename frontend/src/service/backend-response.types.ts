@@ -32,7 +32,7 @@ export interface NewPointDTO extends PointText {
 }
 
 export interface PointResponseData extends PointData {
-  id: number;
+  id: number | null;
   owner: Owner | null;
   created_at: string;
   updated_at: string;

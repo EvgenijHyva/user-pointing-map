@@ -183,6 +183,16 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				} as PointResponseData
 				setLocations((locations) => [...locations, newPoint])
 				toast.success(`Point ${point.label || point.title} is published`)
+			} else {
+				const TemporaryPoint = {
+					...newPoint,
+					comment: "Anonymous User Temporary Point (Will not be saved)",
+					owner: null,
+					id: null,
+					textColor: "red",
+					point:`SRID=4326;POINT (${newPoint.point[0]} ${newPoint.point[1]})`
+				} as unknown as PointResponseData
+				setLocations((locations) => [...locations, TemporaryPoint])
 			}
 		} catch (err) {
 			const axiosErr = (err as  AxiosError)
@@ -192,7 +202,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				console.error(axiosErr)
 		}
 	}
-
 	// TODO
 	const saveEditingDeletingHandler =async (data: any) => {
 		console.log(newGeometry, "Geometry")
@@ -208,21 +217,20 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const deletePoint = async (newGeometry: Coordinate) => {
 		const coordinate = transform(newGeometry, "EPSG:4326", "EPSG:3857");
 		const tolerance = 220000; // Tolerance near the point
-		const bbox = [coordinate[0] - tolerance, coordinate[1] - tolerance, coordinate[0] + tolerance, coordinate[1] + tolerance];
 		// find the point from bounding box
-		console.log("bb",bbox)
+		const bbox = [coordinate[0] - tolerance, coordinate[1] - tolerance, coordinate[0] + tolerance, coordinate[1] + tolerance];
 		const selectedFeature = vectorSource.getFeaturesInExtent(bbox).find(
 			(feature) => { 
 				const point = feature?.getProperties() as PointFeature;
 				const canDelete = point?.owner?.username === user?.username || user?.is_admin
 				if (!canDelete) {
-					toast.info(`Can't delete point ${point.label || point.name}, owned by ${point.owner?.username}`);
+					toast.info(`Can't delete point ${point.label || point.name}, owned by ${point.owner? point.owner.username: "(User deleted)"}`);
 				}
 				return canDelete;
 			}
 		)
 		const myPoint = selectedFeature?.getProperties() as PointFeature;
-		if (myPoint) {
+		if (myPoint && myPoint.id) {
 			try {
 				await backend.deletePoint(myPoint.id);
 				toast.success(`Deleted Point ${myPoint.label || myPoint.name}, owned by ${myPoint.owner?.username}`);
@@ -354,6 +362,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 	const applyCancelIcons = !isDrawing && !isEditing && !isDeleting;
 	const applyIcon = isEditing || isDeleting;
+	const canEditAndDelete = !!user;
 
 	return (
 		<div ref={ref} id="map" > 
@@ -380,7 +389,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 							</IconButton>
 						</Tooltip>
 					}
-					{ applyCancelIcons &&
+					{ applyCancelIcons && canEditAndDelete &&
 						<Tooltip title="Edit Location">
 							<IconButton  color="inherit" aria-label="edit" sx={{ mr: 3 }} onClick={() => setIsEditing(true)}>
 								<EditLocationIcon />
@@ -388,7 +397,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 						</Tooltip>
 					}
 					{
-					 applyCancelIcons &&
+					 applyCancelIcons && canEditAndDelete &&
 						<Tooltip title="Delete Location">
 							<IconButton  color="inherit" aria-label="delete" sx={{ mr: 3 }} onClick={() => setIsDeleting(true)}>
 								<DeleteForeverIcon />
