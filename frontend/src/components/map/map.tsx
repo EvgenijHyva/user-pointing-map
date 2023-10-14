@@ -30,6 +30,7 @@ import AddLocationIcon from '@mui/icons-material/AddLocation';
 import EditLocationIcon from '@mui/icons-material/EditLocation';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Tooltip, IconButton, AppBar, Toolbar } from '@mui/material';
 
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
@@ -43,6 +44,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
 	const [isDrawing, setIsDrawing] = useState<boolean>(false);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
+	const [isDeleting, setIsDeleting] = useState<boolean>(false);
 	const [overlayContent, setOverlayContent] = useState<null | JSX.Element>(null);
 	const [locations, setLocations] = useState<PointResponseData[]>([]);
 	const [newGeometry, setNewGeometry] = useState<null | Coordinate>(null)
@@ -135,6 +137,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const cancelHandler = () => {
 		setIsDrawing(false);
 		setIsEditing(false);
+		setIsDeleting(false);
 	}
 
 	const handleSelect = useCallback((e: SelectEvent) => {
@@ -295,36 +298,46 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		mapRef.current?.getView().setZoom(zoom); 
 	}, [zoom]);
 
-	
+	const applyCancelIcons = !isDrawing && !isEditing && !isDeleting;
+	const applyIcon = isEditing || isDeleting;
+
 	return (
 		<div ref={ref} id="map" > 
 			<AppBar position="absolute"  variant='elevation' color='transparent' style={{bottom: 0, top: "unset"}}>
 				<Toolbar variant="dense" >
-					{ !isDrawing && !isEditing &&
+					{ applyCancelIcons &&
 						<Tooltip title="Add Location">
 							<IconButton  color="inherit" aria-label="add" sx={{ mr: 3 }} onClick={() => setIsDrawing(true)}>
 								<AddLocationIcon />
 							</IconButton>
 						</Tooltip>  
 					}
-					{ (isEditing) &&
+					{ applyIcon &&
 						<Tooltip title="Apply">
 							<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }} onClick={saveEditingHandler}>
 								<CheckCircleIcon />
 							</IconButton>
 						</Tooltip>
 					}
-					{ (isEditing || isDrawing) &&
+					{ !applyCancelIcons &&
 						<Tooltip title="Cancel">
 							<IconButton  color="inherit" aria-label="deny" sx={{ mr: 3 }} onClick={cancelHandler}>
 								<CancelIcon />
 							</IconButton>
 						</Tooltip>
 					}
-					{ !isDrawing && !isEditing &&
+					{ applyCancelIcons &&
 						<Tooltip title="Edit Location">
 							<IconButton  color="inherit" aria-label="edit" sx={{ mr: 3 }} onClick={() => setIsEditing(true)}>
 								<EditLocationIcon />
+							</IconButton>
+						</Tooltip>
+					}
+					{
+					 applyCancelIcons &&
+						<Tooltip title="Delete Location">
+							<IconButton  color="inherit" aria-label="delete" sx={{ mr: 3 }} onClick={() => setIsDeleting(true)}>
+								<DeleteForeverIcon />
 							</IconButton>
 						</Tooltip>
 					}
