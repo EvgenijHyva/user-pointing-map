@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO } from './backend-response.types';
+import { PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO, UpdatePointDto } from './backend-response.types';
 import Cookies from "js-cookie";
 
 
@@ -65,7 +65,7 @@ class BackendService {
 		}
 	}
 
-	changePoint = async (data: PointResponseData): Promise<PointResponseData | undefined> => {
+	changePoints = async (data: UpdatePointDto[]): Promise<PointResponseData | undefined> => {
 		const endpoint = `${this.url}/api/points/`;
 		this.config.method = "put";
 		this.config.withCredentials = true;

@@ -1,13 +1,13 @@
 import { Button, Dialog, DialogContent, DialogTitle, Grid, TextField } from '@mui/material';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
-import { NewPointDTO } from '../../service/backend-response.types';
+import { UpdatePointDto } from '../../service/backend-response.types';
 import { useEffect } from 'react';
 
 
 interface ModalProps {
-	editedPoint: NewPointDTO | null;
+	editedPoint: UpdatePointDto | null;
 	isOpen: boolean;
-	onConfirm: (data: NewPointDTO) => void;
+	onConfirm: (data: UpdatePointDto) => void;
 	onCancel: () => void;
 }
 
@@ -15,8 +15,8 @@ const EditDialog = ({ isOpen, onConfirm, onCancel, editedPoint }: ModalProps): J
 	const { register, handleSubmit, setValue } = useForm();
 
 	const submitHandler: SubmitHandler<FieldValues> = async (formData) => {
-		const data: NewPointDTO = { 
-			...editedPoint as NewPointDTO,
+		const data: UpdatePointDto = { 
+			...editedPoint as UpdatePointDto,
 			...formData as { title: string, label:string, comment: string}
 		}
 		onConfirm(data);
@@ -24,9 +24,9 @@ const EditDialog = ({ isOpen, onConfirm, onCancel, editedPoint }: ModalProps): J
 
 	useEffect(() => {
 		if (editedPoint) {
-		setValue("title", editedPoint.title || "");
-		setValue("label", editedPoint.label || "");
-		setValue("comment", editedPoint.comment || "");
+			setValue("title", editedPoint.title || "");
+			setValue("label", editedPoint.label || "");
+			setValue("comment", editedPoint.comment || "");
 		}
 	}, [editedPoint, setValue]);
 	

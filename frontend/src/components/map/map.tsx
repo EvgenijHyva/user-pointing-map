@@ -2,11 +2,12 @@ import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { useEffect, useRef, useState, useMemo, useContext, useCallback } from 'react';
 import BackendService from '../../service/service';
-import { NewPointDTO, Owner,  PointResponseData } from '../../service/backend-response.types';
+import { NewPointDTO, Owner,  PointResponseData, UpdatePointDto } from '../../service/backend-response.types';
 import { PointFeature } from "./map-types";
 import { AuthContext } from "../../context/AuthContext";
 import OverlayContent from './overlay/overlay-content';
 import ConfirmationModal from '../confirmation-modal/confirmation-modal';
+import EditDialog from '../edit-dialog/edit-dialog';
 // Openlayers
 import VectorLayer from 'ol/layer/Vector';
 import TileLayer from 'ol/layer/Tile';
@@ -23,6 +24,7 @@ import { Modify, Snap, Select } from "ol/interaction";
 import { pointerMove } from 'ol/events/condition';
 import { Coordinate } from 'ol/coordinate';
 import Overlay from 'ol/Overlay';
+import { ModifyEvent } from 'ol/interaction/Modify';
 // styles
 import "./map.styles.css";
 
@@ -32,9 +34,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Tooltip, IconButton, AppBar, Toolbar } from '@mui/material';
-import { ModifyEvent } from 'ol/interaction/Modify';
-import EditDialog from '../edit-dialog/edit-dialog';
-import { set } from 'ol/transform';
 
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -44,9 +43,9 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 	const { user } = useContext(AuthContext);
 
-	const [editedPoint, setEditedPoint] = useState<null | NewPointDTO>(null);
+	const [editedPoint, setEditedPoint] = useState<null | UpdatePointDto>(null);
+	const [editedPoints, setEditedPoints] = useState<UpdatePointDto[]>([]);
 	const [editDialogIsOpen, setEditDialogIsOpen] = useState<boolean>(false);
-	const [editedPoints, setEditedPoints] = useState<NewPointDTO[]>([]);
 	const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
 	const [isDrawing, setIsDrawing] = useState<boolean>(false);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -228,6 +227,8 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	// TODO SEND request
 	const editPoints = async (): Promise<void> => {
 		console.log(editedPoints)
+		setIsEditing(false)
+		
 	}
 
 	const deletePoint = async (newGeometry: Coordinate): Promise<void> => {
@@ -240,7 +241,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				const point = feature?.getProperties() as PointFeature;
 				const canDelete = point?.owner?.username === user?.username || user?.is_admin
 				if (!canDelete) {
-					toast.info(`Can't delete point ${point.label || point.name}, owned by ${point.owner? point.owner.username: "(User deleted)"}`);
+					toast.info(`Can't delete point ${point.label || point.name}, owned by ${point.owner? point.owner?.username: "(User deleted)"}`);
 				}
 				return canDelete;
 			}
@@ -285,27 +286,49 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			const featureCoordinates = featurePoint?.getGeometry() as Point;
 			console.log(featureCoordinates?.getCoordinates(), featurePoint.getProperties())
 			const pointProps = featurePoint.getProperties() as PointFeature;
-			if (pointProps.owner.username === user?.username || user?.is_admin) {
-				const newPoint: NewPointDTO = {
+			if ((pointProps.owner?.username === user?.username) || user?.is_admin) {
+				const newPoint: UpdatePointDto = {
+					id: pointProps.id,
 					comment: pointProps.comment,
 					point: transform(featureCoordinates?.getCoordinates(), "EPSG:3857", "EPSG:4326"),
 					label: pointProps.label,
 					title: pointProps.name,
-					created_at: new Date(pointProps.created_at),
+					created_at: pointProps.created_at as unknown as Date,
 					updated_at: new Date()
 				} 
 				
 				setEditedPoint(newPoint);
 				setEditDialogIsOpen(true);
-				//setEditedPoints((points) => [...points, newPoint])
 			}
 		}
 	}
 
-	const confirmEdit = (newPoint: NewPointDTO): void => {
+	const confirmEdit = (newPoint: UpdatePointDto): void => {
 		setEditDialogIsOpen(false);
-		setEditedPoints((points) => [...points, newPoint]);
+		setEditedPoints((editedPoints) => [...editedPoints.filter((point) => point.id !== newPoint.id), newPoint]);
 	}
+
+	const modifyCustomListener = (e: MapBrowserEvent<any>): boolean => { 
+			const { pixel } = e;
+			const features = mapRef.current?.getFeaturesAtPixel(pixel, { hitTolerance: 5 });
+			const selectedFeature: PointFeature | undefined = features?.find(
+				(feature) => {
+				const assumePoint = feature?.getGeometry();
+				return assumePoint instanceof Point && (feature.getProperties() as PointFeature)?.created_at;
+			})?.getProperties() as PointFeature;
+			const ownFeature = features?.find(
+				(feature) => { 
+					const editableFeature = (
+						(feature.getProperties() as PointFeature)?.owner?.username === user?.username && !!user
+					) || user?.is_admin;
+					const geometry = feature?.getGeometry();
+					return geometry instanceof Point && editableFeature;
+			})
+			if (features?.length && !ownFeature && selectedFeature) {
+				toast.info(`You can't modify ${(selectedFeature?.owner?.username || "Anomymous user")} point, only admin can modify all.`)
+			}
+			return !!ownFeature;
+		}
 
 	useEffect(() => {
 		if (ref.current && !mapRef.current && overlayRef && refOverlay) {
@@ -353,8 +376,14 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		const select = mapRef.current?.getInteractions().getArray().find(
 			interaction => interaction instanceof Select
 		);
-		isDeleting ? select?.setActive(false) : select?.setActive(true);
-	}, [isDeleting])
+		if (isDeleting) {
+			select?.setActive(false);
+			toast.info(user?.is_admin ? "You are in delete mode as admin, all points are deletable. P.S. 'With great power comes great responsibility'"
+			 : "You are in delete mode only 'own' points can be deleted", { autoClose: 10000 });
+		} else {
+			select?.setActive(true);
+		}
+	}, [isDeleting, user])
 
 	useEffect(() => {
 		const select = mapRef.current?.getInteractions().getArray().find(
@@ -362,11 +391,16 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		);
 		if(isEditing) {
 			const snapInteraction = new Snap({ source: vectorSource, pixelTolerance: 20 });
-			const modify = new Modify({ source: vectorSource });
+			const modify = new Modify({ 
+				source: vectorSource, 
+				condition: modifyCustomListener 
+			});
 			modify.on("modifyend", modifyHandler);
 			mapRef.current?.addInteraction(snapInteraction);
 			mapRef.current?.addInteraction(modify);
 			select?.setActive(false);
+			toast.info(user?.is_admin ? "You are in edit mode as admin, all points are editable. P.S. 'With great power comes great responsibility'" : 
+			"You are in edit mode, you can modify multiple 'own' points at same time.", { autoClose: 10000 });
 		} else {
 			const snapInteraction = mapRef.current?.getInteractions().getArray().find(
 				(interaction) => interaction instanceof Snap
@@ -386,7 +420,8 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			}
 			select?.setActive(true);
 		}
-	}, [isEditing, vectorSource])
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isEditing, vectorSource, user])
 
 
 	useEffect(() => {
@@ -425,7 +460,14 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				<Toolbar variant="dense" >
 					{ applyCancelIcons &&
 						<Tooltip title="Add Location">
-							<IconButton  color="inherit" aria-label="add" sx={{ mr: 3 }} onClick={() => setIsDrawing(true)}>
+							<IconButton  color="inherit" aria-label="add" sx={{ mr: 3 }} onClick={() => {
+								setIsDrawing(true);
+								toast.info(user ? 
+										"You are in drawing mode":
+									 	"You are in drawing mode as Anonymous User, your points will not be stored and may be deleted after refresh"
+									, { autoClose: 7000 }
+									)
+							}}>
 								<AddLocationIcon />
 							</IconButton>
 						</Tooltip>  
@@ -483,7 +525,5 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		</div>	
 	);
 }
-
-//*/
 
 export default MapComponent;

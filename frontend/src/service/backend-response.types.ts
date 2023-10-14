@@ -31,6 +31,10 @@ export interface NewPointDTO extends PointText {
   point: number[];
 }
 
+export interface UpdatePointDto extends NewPointDTO {
+  id: number
+}
+
 export interface PointResponseData extends PointData {
   id: number | null;
   owner: Owner | null;
