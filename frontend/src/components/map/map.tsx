@@ -118,6 +118,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				const transformedCoordinates =  transform([parseFloat(lon), parseFloat(lat)], `EPSG:${EPSG}`, 'EPSG:3857');
 				const featurePoint = new Feature({
 					geometry: new Point(transformedCoordinates),
+					id: location.id,
 					name: location.title,
 					label: location.label,
 					owner: location.owner,
@@ -198,13 +199,52 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		if (isEditing) {
 			console.log("edit", newGeometry);
 		}
-		if (isDeleting) {
-			console.log("delete", newGeometry);
+		if (isDeleting && newGeometry) {
+			deletePoint(newGeometry)
 		}
+		await console.log("")
+	}
+
+	const deletePoint = async (newGeometry: Coordinate) => {
+		const coordinate = transform(newGeometry, "EPSG:4326", "EPSG:3857");
+		const tolerance = 220000; // Tolerance near the point
+		const bbox = [coordinate[0] - tolerance, coordinate[1] - tolerance, coordinate[0] + tolerance, coordinate[1] + tolerance];
+		// find the point from bounding box
+		console.log("bb",bbox)
+		const selectedFeature = vectorSource.getFeaturesInExtent(bbox).find(
+			(feature) => { 
+				const point = feature?.getProperties() as PointFeature;
+				const canDelete = point?.owner?.username === user?.username || user?.is_admin
+				if (!canDelete) {
+					toast.info(`Can't delete point ${point.label || point.name}, owned by ${point.owner?.username}`);
+				}
+				return canDelete;
+			}
+		)
+		const myPoint = selectedFeature?.getProperties() as PointFeature;
+		if (myPoint) {
+			try {
+				await backend.deletePoint(myPoint.id);
+				toast.success(`Deleted Point ${myPoint.label || myPoint.name}, owned by ${myPoint.owner?.username}`);
+				setLocations((locations) => locations.filter(loc => loc.id !== myPoint.id))
+			} catch (err) {
+				const axiosErr = (err as  AxiosError);
+				if (axiosErr.message !== "canceled") {
+					if ((axiosErr.response?.data as {detail: string}).detail) {
+						toast.warning(`Point (${myPoint.label || myPoint.name}): ${(axiosErr.response?.data as {detail: string}).detail}`);
+					} else {
+						toast.error(axiosErr.message, { autoClose: false });
+					}
+				}
+				else
+					console.error(axiosErr)
+			}
+		} 
 	}
 
 	const handleMapClick = useCallback((e: MapBrowserEvent<PointerEvent>) => {
 		const clickedCoord = mapRef.current?.getCoordinateFromPixel(e.pixel) as Coordinate;
+		console.log(clickedCoord, "click")
 		const transPoint = transform(clickedCoord, "EPSG:3857", "EPSG:4326");
 		setNewGeometry(transPoint);
 		setIsDrawing((prevIsDrawing) => {

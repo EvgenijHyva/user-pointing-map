@@ -11,7 +11,8 @@ export type MapState = {
 	mapContext?: IMap;
 }
 
-export type PointFeature = { 
+export type PointFeature = {
+	id: number 
 	owner: Owner, 
 	label: string | null, 
 	name: string, 

@@ -71,12 +71,11 @@ class LocationView(APIView):
 			return Response(serializer.data)
 		else:
 			raise PermissionDenied("Only point owner or admins can update")
-		
-	def delete(self, request: Request) -> Response:
+
+	def delete(self, request: Request, id: int) -> Response:
 		data = request.data
 		token = request.COOKIES.get("access") or request.COOKIES.get("jwt")
-
-		print(token, data)
+	
 		if not token:
 			raise AuthenticationFailed("Unauthenticated! Token not provided")
 		
@@ -88,10 +87,9 @@ class LocationView(APIView):
 		user = AppUser.objects.get(id=payload["id"])
 		
 		if user.is_staff or user.is_superuser or user.pk == data.get("owner").get("id"):
-			location_id = data.get("id")
-			location = get_object_or_404(Location, pk=location_id)
+			location = get_object_or_404(Location, pk=id)
 			location.delete()
 
-			return Response({ "success": f"Location with id {location_id} was deleted." })
+			return Response({ "success": f"Location with id {id} was deleted." })
 		else:
 			raise PermissionDenied("Only point owner or admins can delete")

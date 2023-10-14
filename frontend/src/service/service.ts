@@ -10,7 +10,6 @@ interface serviceConfig {
 	signal: AbortSignal,
 	headers: {},
 	withCredentials?: boolean,
-	params?: {}
 }
 
 class BackendService {
@@ -26,8 +25,7 @@ class BackendService {
 			signal: this.controller.signal,
 			headers: {
 				"Content-Type": "application/json",
-			},
-			params: {}
+			}
 		};
 		if (url)
 			this.url = url;
@@ -88,13 +86,10 @@ class BackendService {
 		}
 	}
 
-	deletePoint = async (data: number): Promise<void> => {
-		const endpoint = `${this.url}/api/points/`;
+	deletePoint = async (id: number): Promise<void> => {
+		const endpoint = `${this.url}/api/point/${id}`;
 		this.config.method = "delete";
 		this.config.withCredentials = true;
-		this.config.params = {
-			id: data
-		}
 		this.config.headers = {
 			...this.config.headers,
 			'X-CSRFToken': Cookies.get("csrftoken")
