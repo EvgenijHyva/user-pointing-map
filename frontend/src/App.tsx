@@ -1,17 +1,34 @@
-import React from 'react';
-import MapComponent from './components/map/map';
+import { Routes, Route } from 'react-router-dom';
+import Navigation from './components/navigation/navigation.component';
+import MainPage from './components/main-page/main-page';
+import ErrorPage from './components/error-page/error-page';
+import AuthComponent from './components/auth/auth';
+import { AuthContext } from "./context/AuthContext";
+import { useContext, useEffect } from 'react';
+import "ol/ol.css";
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
-import { ToastContainer } from 'react-toastify';
-import { basicToastContainerProps } from './utils/toastify';
+
 
 function App(): JSX.Element {
+  const { user, getUser } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (!user) {
+      getUser()      
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+ 
 
   return (
-    <div className="App">
-      <h1>Map</h1>
-      <MapComponent/>
-      <ToastContainer {...basicToastContainerProps} />
-    </div>
+    <Routes>
+      <Route path='/' element={<Navigation />} > 
+        <Route index={true} element={<MainPage />} />
+        <Route path='auth/' element={ <AuthComponent /> } />
+        <Route element={<ErrorPage />} path='*' />
+      </Route>
+    </Routes>
   );
 }
 

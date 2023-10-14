@@ -1,5 +1,5 @@
 import Map from "ol/Map";
-import { Owner } from '../../utils/service/backend-response.types';
+import { Owner } from '../../service/backend-response.types';
 
 export type MapProps = {};
 
@@ -11,4 +11,13 @@ export type MapState = {
 	mapContext?: IMap;
 }
 
-export type PointFeature = { owner: Owner, label: string | null, name: string, initial_point: string };
+export type PointFeature = {
+	id: number 
+	owner: Owner, 
+	label: string | null, 
+	name: string, 
+	comment: string | null,
+	initial_point: string,
+	created_at: string, 
+	updated_at: string 
+};

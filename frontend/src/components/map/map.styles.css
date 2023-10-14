@@ -6,9 +6,16 @@ body {
 
 #map {
 	position: absolute;
-	top: 10%;
-	width: 80%;
-	height: 50%;
+	top: 65px;
+	width: 100%;
+	height: calc(100% - 65px);
+}
+
+@media screen and (max-width: 600px) {
+	#map {
+		top:60px;
+		height: calc(100% - 60px);
+	}
 }
 
 .overlay {
@@ -20,4 +27,8 @@ body {
 	max-width: 250px;
 	overflow: overlay;
 	text-overflow: clip;
+}
+
+.overlay > div {
+	font-size: 12px;
 }
