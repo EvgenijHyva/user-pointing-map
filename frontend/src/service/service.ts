@@ -1,15 +1,16 @@
-import axios, { AxiosResponse } from 'axios';
-import { PointData, PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO } from './backend-response.types';
+import axios from 'axios';
+import { PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO } from './backend-response.types';
 import Cookies from "js-cookie";
 
 
 interface serviceConfig {
 	responseEncoding: "utf8",
 	responseType: "json",
-	method?: "get" | "post" | "put" | "delete",
+	method: "get" | "post" | "put" | "delete",
 	signal: AbortSignal,
 	headers: {},
-	withCredentials?: boolean
+	withCredentials?: boolean,
+	params?: {}
 }
 
 class BackendService {
@@ -20,11 +21,13 @@ class BackendService {
 	constructor(url?: string) {
 		this.config = {
 			responseEncoding: "utf8",
+			method: "get",
 			responseType: "json",
 			signal: this.controller.signal,
 			headers: {
 				"Content-Type": "application/json",
-			}
+			},
+			params: {}
 		};
 		if (url)
 			this.url = url;
@@ -78,6 +81,30 @@ class BackendService {
 		}
 		try {
 			const response = await axios.post(endpoint, data, this.config);
+			return response.data;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+
+	deletePoint = async (data: number): Promise<void> => {
+		const endpoint = `${this.url}/api/points/`;
+		this.config.method = "delete";
+		this.config.withCredentials = true;
+		this.config.params = {
+			id: data
+		}
+		this.config.headers = {
+			...this.config.headers,
+			'X-CSRFToken': Cookies.get("csrftoken")
+		};
+		const token = Cookies.get("access") ;
+		if (!token) {
+			return;
+		}
+		try {
+			const response = await axios.delete(endpoint, this.config);
 			return response.data;
 		} catch (err) {
 			console.log(err);

@@ -173,20 +173,34 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 	const saveHandler = async (newPoint: NewPointDTO): Promise<void> => {
 		setDialogIsOpen(false);
-		const point = await backend.postPoint(newPoint)
-		if (point) {
-			const newPoint = {
-				...point,
-				owner: user as Owner
-			} as PointResponseData
-			setLocations((locations) => [...locations, newPoint])
+		try {
+			const point = await backend.postPoint(newPoint);
+			if (point) {
+				const newPoint = {
+					...point,
+					owner: user as Owner
+				} as PointResponseData
+				setLocations((locations) => [...locations, newPoint])
+				toast.success(`Point ${point.label || point.title} is published`)
+			}
+		} catch (err) {
+			const axiosErr = (err as  AxiosError)
+			if (axiosErr.message !== "canceled")
+				toast.error(axiosErr.message, { autoClose: false });
+			else
+				console.error(axiosErr)
 		}
-		console.log(point)
 	}
 
-	const saveEditingHandler =async (data: any) => {
+	// TODO
+	const saveEditingDeletingHandler =async (data: any) => {
 		console.log(newGeometry, "Geometry")
-		// TODO
+		if (isEditing) {
+			console.log("edit", newGeometry);
+		}
+		if (isDeleting) {
+			console.log("delete", newGeometry);
+		}
 	}
 
 	const handleMapClick = useCallback((e: MapBrowserEvent<PointerEvent>) => {
@@ -314,7 +328,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 					}
 					{ applyIcon &&
 						<Tooltip title="Apply">
-							<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }} onClick={saveEditingHandler}>
+							<IconButton  color="inherit" aria-label="confirm" sx={{ mr: 3 }} onClick={saveEditingDeletingHandler}>
 								<CheckCircleIcon />
 							</IconButton>
 						</Tooltip>
