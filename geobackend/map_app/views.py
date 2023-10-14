@@ -73,7 +73,6 @@ class LocationView(APIView):
 			raise PermissionDenied("Only point owner or admins can update")
 
 	def delete(self, request: Request, id: int) -> Response:
-		data = request.data
 		token = request.COOKIES.get("access") or request.COOKIES.get("jwt")
 	
 		if not token:
@@ -84,10 +83,10 @@ class LocationView(APIView):
 		except jwt.ExpiredSignatureError:
 			raise AuthenticationFailed("Unauthenticated!")
 		
+		location = get_object_or_404(Location, pk=id)
 		user = AppUser.objects.get(id=payload["id"])
-		
-		if user.is_staff or user.is_superuser or user.pk == data.get("owner").get("id"):
-			location = get_object_or_404(Location, pk=id)
+
+		if user.is_staff or user.is_superuser or user.pk == location.owner.pk:
 			location.delete()
 
 			return Response({ "success": f"Location with id {id} was deleted." })

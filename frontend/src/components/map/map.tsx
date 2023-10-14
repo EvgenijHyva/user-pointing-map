@@ -32,6 +32,9 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { Tooltip, IconButton, AppBar, Toolbar } from '@mui/material';
+import { ModifyEvent } from 'ol/interaction/Modify';
+import EditDialog from '../edit-dialog/edit-dialog';
+import { set } from 'ol/transform';
 
 function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -40,7 +43,10 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const mapRef = useRef<Map | null>(null);
 
 	const { user } = useContext(AuthContext);
-	
+
+	const [editedPoint, setEditedPoint] = useState<null | NewPointDTO>(null);
+	const [editDialogIsOpen, setEditDialogIsOpen] = useState<boolean>(false);
+	const [editedPoints, setEditedPoints] = useState<NewPointDTO[]>([]);
 	const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false);
 	const [isDrawing, setIsDrawing] = useState<boolean>(false);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -104,7 +110,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		return [pointStyle, pointTextStyle]
 	}
 
-	const renderPointsToMap = () => {
+	const renderPointsToMap = (): void => {
 		if(!mapRef || !ref) return;
 		vectorSource.clear();
 		locations.forEach((location) => {
@@ -135,13 +141,19 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		});
 	}
 
-	const cancelHandler = () => {
+	const cancelHandler = (): void => {
 		setIsDrawing(false);
 		setIsEditing(false);
 		setIsDeleting(false);
+		setNewGeometry(null);
+		setEditedPoint(null);
+		if (editedPoints.length) {
+			setEditedPoints([]);
+			setLocations((locations) => [...locations]); // rerender poins again
+		}
 	}
 
-	const handleSelect = useCallback((e: SelectEvent) => {
+	const handleSelect = useCallback((e: SelectEvent): void => {
 		const overlay = overlayRef.current?.getElement();
 		if (overlay) {
 			if (e.selected.length > 0) {
@@ -203,18 +215,22 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		}
 	}
 	// TODO
-	const saveEditingDeletingHandler =async (data: any) => {
-		console.log(newGeometry, "Geometry")
-		if (isEditing) {
-			console.log("edit", newGeometry);
+	const saveEditingDeletingHandler = async (): Promise<void> => {
+		if (isEditing && editedPoints.length) {
+			await editPoints()
+			// Editing func
 		}
 		if (isDeleting && newGeometry) {
-			deletePoint(newGeometry)
+			await deletePoint(newGeometry)
 		}
-		await console.log("")
 	}
 
-	const deletePoint = async (newGeometry: Coordinate) => {
+	// TODO SEND request
+	const editPoints = async (): Promise<void> => {
+		console.log(editedPoints)
+	}
+
+	const deletePoint = async (newGeometry: Coordinate): Promise<void> => {
 		const coordinate = transform(newGeometry, "EPSG:4326", "EPSG:3857");
 		const tolerance = 220000; // Tolerance near the point
 		// find the point from bounding box
@@ -263,6 +279,34 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		})
 	}, [])
 
+	const modifyHandler = (e: ModifyEvent) => {
+		const featurePoint = e.features.getArray().find((feature) =>  feature.getGeometry() instanceof Point);
+		if (featurePoint) {
+			const featureCoordinates = featurePoint?.getGeometry() as Point;
+			console.log(featureCoordinates?.getCoordinates(), featurePoint.getProperties())
+			const pointProps = featurePoint.getProperties() as PointFeature;
+			if (pointProps.owner.username === user?.username || user?.is_admin) {
+				const newPoint: NewPointDTO = {
+					comment: pointProps.comment,
+					point: transform(featureCoordinates?.getCoordinates(), "EPSG:3857", "EPSG:4326"),
+					label: pointProps.label,
+					title: pointProps.name,
+					created_at: new Date(pointProps.created_at),
+					updated_at: new Date()
+				} 
+				
+				setEditedPoint(newPoint);
+				setEditDialogIsOpen(true);
+				//setEditedPoints((points) => [...points, newPoint])
+			}
+		}
+	}
+
+	const confirmEdit = (newPoint: NewPointDTO): void => {
+		setEditDialogIsOpen(false);
+		setEditedPoints((points) => [...points, newPoint]);
+	}
+
 	useEffect(() => {
 		if (ref.current && !mapRef.current && overlayRef && refOverlay) {
 			// Limit multi-world panning to one world east and west of the real world.
@@ -305,18 +349,24 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	useEffect( () => {
+		const select = mapRef.current?.getInteractions().getArray().find(
+			interaction => interaction instanceof Select
+		);
+		isDeleting ? select?.setActive(false) : select?.setActive(true);
+	}, [isDeleting])
+
 	useEffect(() => {
 		const select = mapRef.current?.getInteractions().getArray().find(
 			interaction => interaction instanceof Select
 		);
-		if(isEditing || isDeleting) {
+		if(isEditing) {
 			const snapInteraction = new Snap({ source: vectorSource, pixelTolerance: 20 });
 			const modify = new Modify({ source: vectorSource });
+			modify.on("modifyend", modifyHandler);
 			mapRef.current?.addInteraction(snapInteraction);
 			mapRef.current?.addInteraction(modify);
-			if (select) {
-				select.setActive(false);
-			}
+			select?.setActive(false);
 		} else {
 			const snapInteraction = mapRef.current?.getInteractions().getArray().find(
 				(interaction) => interaction instanceof Snap
@@ -326,12 +376,17 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			const modify = mapRef.current?.getInteractions().getArray().find(
 				(interaction) => interaction instanceof Modify
 			)
-			if(modify)
+			if(modify) {
+				// cleanup listeners before unmount
+				const listener = modify.getListeners("modifyend");
+				if (listener?.length) {
+					modify.removeEventListener("modifyend", listener[0]);
+				}
 				mapRef.current?.removeInteraction(modify);
-			if (select)
-				select.setActive(true);
+			}
+			select?.setActive(true);
 		}
-	}, [isEditing, vectorSource, isDeleting])
+	}, [isEditing, vectorSource])
 
 
 	useEffect(() => {
@@ -416,6 +471,15 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 				title={"Create point?"}
 				point={newGeometry}
 				/>
+
+			<EditDialog 
+				isOpen={editDialogIsOpen}
+				onCancel={() => { 
+					setEditDialogIsOpen(false);
+				}}
+				onConfirm={(data) => confirmEdit(data)}
+				editedPoint={editedPoint}
+			/>
 		</div>	
 	);
 }
