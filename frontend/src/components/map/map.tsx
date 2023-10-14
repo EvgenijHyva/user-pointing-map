@@ -269,7 +269,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 	const handleMapClick = useCallback((e: MapBrowserEvent<PointerEvent>) => {
 		const clickedCoord = mapRef.current?.getCoordinateFromPixel(e.pixel) as Coordinate;
-		console.log(clickedCoord, "click")
 		const transPoint = transform(clickedCoord, "EPSG:3857", "EPSG:4326");
 		setNewGeometry(transPoint);
 		setIsDrawing((prevIsDrawing) => {
@@ -306,6 +305,9 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const confirmEdit = (newPoint: UpdatePointDto): void => {
 		setEditDialogIsOpen(false);
 		setEditedPoints((editedPoints) => [...editedPoints.filter((point) => point.id !== newPoint.id), newPoint]);
+		toast.info("Point changes is recorder, you can continue to edit. Apply changes to save them permanently", 
+			{ position: "top-center", autoClose: 10000 }
+		)
 	}
 
 	const modifyCustomListener = (e: MapBrowserEvent<any>): boolean => { 
