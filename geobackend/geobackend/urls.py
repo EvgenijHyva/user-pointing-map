@@ -28,7 +28,7 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email=os.environ.get("DJANGO_ADMIN_EMAIL")),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,)
+    permission_classes=(permissions.IsAuthenticatedOrReadOnly,)
 )
 
 urlpatterns = [

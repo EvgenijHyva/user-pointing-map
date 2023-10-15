@@ -104,7 +104,7 @@ class UserView(APIView):
 
 class LogoutView(APIView):
 	@swagger_auto_schema(
-        responses={200: openapi.Response("Success", {"message": "Success. Logged out"})},
+        responses={200: openapi.Response("Success")},
         operation_id="userLogout",
         operation_description="Log out the user."
     )
