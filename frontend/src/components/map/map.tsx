@@ -76,7 +76,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 
 	const createPointStyles = (location: PointResponseData): Style[] => {
 		const own = user && user?.username === location.owner?.username;
-		const textSize = own ? 16 : 10; // Own 15, others 10
+		const textSize = own ? 16 : 10;
 		const pointRadius = own ? 10 : 5
 		const pointTextStyle = new Style({
 			text: new Text({
@@ -232,16 +232,12 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			if (!response?.updated.length) {
 				toast.warning(`0 points was updated, skiped ${response?.skiped || 0}.`);
 			} else {
-				toast.success(`Updated ${response.updated.length} points.`);
+				toast.success(`Updated ${response.updated.length} points.`, { autoClose: 1000 });
 				const updatePoints = response.updated;
-				console.log("before change", updatePoints)
 				const points = updatePoints.map((point) =>  {
-					const checkUser = locations.find((loc) => { console.log(loc.owner?.id === point.owner); return loc.owner?.id === point.owner})?.owner;
-					console.log("POINT:", point, "CHECK:", checkUser)
+					const checkUser = locations.find((loc) => loc.owner?.id === point.owner)?.owner;
 					return ({ ...point, owner: checkUser ? checkUser : user as Owner } as PointResponseData )
 				})
-				console.log("after change", points)
-				console.log(points)
 				const poinst_ids = points.map((pointObj) => pointObj.id as number) 
 				setLocations((locations) => {
 					const filteredLocations = locations.filter(
@@ -319,7 +315,6 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		const featurePoint = e.features.getArray().find((feature) =>  feature.getGeometry() instanceof Point);
 		if (featurePoint) {
 			const featureCoordinates = featurePoint?.getGeometry() as Point;
-			console.log(featureCoordinates?.getCoordinates(), featurePoint.getProperties())
 			const pointProps = featurePoint.getProperties() as PointFeature;
 			if ((pointProps.owner?.username === user?.username) || user?.is_admin) {
 				const newPoint: UpdatePointDto = {
@@ -342,11 +337,12 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		setEditDialogIsOpen(false);
 		setEditedPoints((editedPoints) => [...editedPoints.filter((point) => point.id !== newPoint.id), newPoint]);
 		toast.info("Point changes is recorder, you can continue to edit. Apply changes to save them permanently", 
-			{ autoClose: 3000, delay: 1000 }
+			{ autoClose: 1000, delay: 100 }
 		)
 	}
 
 	const modifyCustomListener = (e: MapBrowserEvent<any>): boolean => { 
+			//Handles point modification snap. Is user admin or its own point then it allow to modify
 			const { pixel } = e;
 			const features = mapRef.current?.getFeaturesAtPixel(pixel, { hitTolerance: 5 });
 			const selectedFeature: PointFeature | undefined = features?.find(
@@ -417,7 +413,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		if (isDeleting) {
 			select?.setActive(false);
 			toast.info(user?.is_admin ? "You are in delete mode as admin, all points are deletable. P.S. 'With great power comes great responsibility'"
-			 : "You are in delete mode only 'own' points can be deleted", { autoClose: 10000 });
+			 : "You are in delete mode only 'own' points can be deleted", { autoClose: 7000 });
 		} else {
 			select?.setActive(true);
 		}
@@ -438,7 +434,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 			mapRef.current?.addInteraction(modify);
 			select?.setActive(false);
 			toast.info(user?.is_admin ? "You are in edit mode as admin, all points are editable. P.S. 'With great power comes great responsibility'" : 
-			"You are in edit mode, you can modify multiple 'own' points at same time.", { autoClose: 10000 });
+			"You are in edit mode, you can modify multiple 'own' points at same time.", { autoClose: 7000 });
 		} else {
 			const snapInteraction = mapRef.current?.getInteractions().getArray().find(
 				(interaction) => interaction instanceof Snap

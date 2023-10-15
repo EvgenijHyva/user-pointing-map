@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -30,7 +31,7 @@ class UserRegister(APIView):
 		
 		token = jwt.encode(payload, os.environ.get("SECRET_KEY"), algorithm="HS256")
 
-		response = Response()
+		response = Response(status=status.HTTP_201_CREATED)
 		response.set_cookie(key="jwt", value=token, httponly=True)
 
 		response.data = serializer.data
