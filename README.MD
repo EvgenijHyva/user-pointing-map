@@ -25,7 +25,10 @@
 
 This will create 2 containers with DB and geobackend instance.
 
+Before execution read [Link to Backend README](geobackend/README.MD) about .env file
+
 ```bash
+# requires .env in backend folder on same level with settings file
 docker-compose up --build
 # or just
 docker-compose up
