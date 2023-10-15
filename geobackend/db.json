@@ -1,0 +1,887 @@
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2023-10-15T10:16:43.524Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "1",
+    "object_repr": "geoadmin ",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Color\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2023-10-15T10:17:06.966Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "1",
+    "object_repr": "Point:SRID=4326;POINT (23.778221878801997 60.71798194439289), Owner:(SRID=4326;POINT (23.778221878801997 60.71798194439289))",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"TextColor\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2023-10-15T10:28:41.929Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "2",
+    "object_repr": "user1 ",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Color\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2023-10-15T10:28:58.682Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "6",
+    "object_repr": "Point:SRID=4326;POINT (-0.9342671816710097 28.738491875400445), Owner:(SRID=4326;POINT (-0.9342671816710097 28.738491875400445))",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"TextColor\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2023-10-15T10:29:21.773Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "6",
+    "object_repr": "Point:SRID=4326;POINT (-0.9342671816710097 28.73849187540043), Owner:(SRID=4326;POINT (-0.9342671816710097 28.73849187540043))",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"TextColor\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2023-10-15T10:29:37.671Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "2",
+    "object_repr": "user1 ",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Color\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2023-10-15T10:29:59.728Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "3",
+    "object_repr": "user2 lastname",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Color\"]}}]"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 1,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 1,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 1,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": 1,
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 2,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 2,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 2,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can view permission",
+    "content_type": 2,
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 3,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 3,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 3,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can view group",
+    "content_type": 3,
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 4,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 4,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 4,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can view content type",
+    "content_type": 4,
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 5,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 5,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 5,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can view session",
+    "content_type": 5,
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can add user",
+    "content_type": 6,
+    "codename": "add_appuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can change user",
+    "content_type": 6,
+    "codename": "change_appuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can delete user",
+    "content_type": 6,
+    "codename": "delete_appuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can view user",
+    "content_type": 6,
+    "codename": "view_appuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add location",
+    "content_type": 7,
+    "codename": "add_location"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change location",
+    "content_type": 7,
+    "codename": "change_location"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete location",
+    "content_type": 7,
+    "codename": "delete_location"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can view location",
+    "content_type": 7,
+    "codename": "view_location"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "users",
+    "model": "appuser"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "map_app",
+    "model": "location"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "d1fr8tow9avxuxb89vd7whjeh8sus37j",
+  "fields": {
+    "session_data": ".eJxVjMEOwiAQRP-FsyHdQgt49N5vIAu7SNVAUtqT8d9tkx70OPPezFt43Nbst8aLn0lcBYjLbxcwPrkcgB5Y7lXGWtZlDvJQ5EmbnCrx63a6fwcZW97Xo-m7SEPSiUBH5QwgKWvUENnpcY-snGVFYDTDzjDYZIcO7Ric6aETny_UejdS:1qry92:VbmKT5qe2bmzfZq5ryezFFArJ8SpuKqYcb3j_4Suoys",
+    "expire_date": "2023-10-29T10:14:48.035Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "gmezvt8pn1t4z7wdt6tws9ph71xsv9bw",
+  "fields": {
+    "session_data": ".eJxVjMEOwiAQRP-FsyHdQgt49N5vIAu7SNVAUtqT8d9tkx70OPPezFt43Nbst8aLn0lcBYjLbxcwPrkcgB5Y7lXGWtZlDvJQ5EmbnCrx63a6fwcZW97Xo-m7SEPSiUBH5QwgKWvUENnpcY-snGVFYDTDzjDYZIcO7Ric6aETny_UejdS:1qryI0:-Ywag1bwxLmmUd0TvN7qIoodqMkG-gn1Z_MK_qsndFs",
+    "expire_date": "2023-10-29T10:24:04.335Z"
+  }
+},
+{
+  "model": "users.appuser",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$320000$8xLRWQudHHBj1Yvx80PXg5$3MExBxN0PH9Td+PFd8NtHOwx5wxkyHQcI0WKHWdxYo8=",
+    "last_login": "2023-10-15T10:24:04.327Z",
+    "is_superuser": true,
+    "username": "geoadmin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@some.mail",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2023-10-15T10:13:18.563Z",
+    "age": null,
+    "color": "#000000",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.appuser",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$320000$w291ZCOwvgRjhHKKYfFN02$rznwL457uAdxU+MO6gJpSbX8T8mB+KOvesZznrFyrAQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "user1",
+    "first_name": "Some User",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2023-10-15T10:20:51.634Z",
+    "age": 16,
+    "color": "#FFC222",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.appuser",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$320000$CGzMTG8uHrC4U04H89uxHF$p5vPWFgcGTt2fe51mhaz6C6+ymW0H0MrU/kj+HZY3Mw=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "user2",
+    "first_name": "user2 name",
+    "last_name": "lastname",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2023-10-15T10:23:14.613Z",
+    "age": 39,
+    "color": "#FF0E4E",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.appuser",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$320000$s0RXXFK2FJEZwmEmHbWRtq$mk1+xtfIfQDfaAcCs1SEUZcpVNkegj/dSxheD4DyOo4=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "user3",
+    "first_name": "user2 name",
+    "last_name": "lastname",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2023-10-15T10:25:16.071Z",
+    "age": 75,
+    "color": "#5860fa",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.appuser",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$320000$1QhEzkz6OQePwKkZdNnc3a$ChXEnQzD4/de9l/Onkujk26cZ8l+t7mRzfOis0PsZIw=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "user4",
+    "first_name": "user2 name",
+    "last_name": "lastname",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2023-10-15T10:26:57.414Z",
+    "age": null,
+    "color": "#5269ef",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.appuser",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$320000$utR4uz5jg5dokaGjnjWlHa$8JAHIVhqizZNR8Zba9iRMJ18Rgu1E3FrgkMAGSdbnbw=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "user5",
+    "first_name": "user2 name",
+    "last_name": "lastname",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2023-10-15T10:27:45.960Z",
+    "age": 53,
+    "color": "#5a39be",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 1,
+  "fields": {
+    "created_at": "2023-10-15T10:14:19.089Z",
+    "updated_at": "2023-10-15T10:17:06.964Z",
+    "owner": 1,
+    "point": "SRID=4326;POINT (23.778221878801997 60.71798194439289)",
+    "label": "Fin label",
+    "title": "First point",
+    "comment": "origin",
+    "textColor": "#000000"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 2,
+  "fields": {
+    "created_at": "2023-10-15T10:18:45.578Z",
+    "updated_at": "2023-10-15T10:18:45.578Z",
+    "owner": 1,
+    "point": "SRID=4326;POINT (13.914585510292524 57.10801438887148)",
+    "label": "mummy trolls",
+    "title": "Swe",
+    "comment": "",
+    "textColor": "#000000"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 3,
+  "fields": {
+    "created_at": "2023-10-15T10:19:20.392Z",
+    "updated_at": "2023-10-15T10:19:20.392Z",
+    "owner": 1,
+    "point": "SRID=4326;POINT (-35.194153517998956 68.43998329132086)",
+    "label": "location unknown",
+    "title": "Some place",
+    "comment": "",
+    "textColor": "#000000"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 4,
+  "fields": {
+    "created_at": "2023-10-15T10:19:37.119Z",
+    "updated_at": "2023-10-15T10:19:37.119Z",
+    "owner": 1,
+    "point": "SRID=4326;POINT (123.31374742320178 -25.374445873692423)",
+    "label": "",
+    "title": "Far away",
+    "comment": "",
+    "textColor": "#000000"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 5,
+  "fields": {
+    "created_at": "2023-10-15T10:20:02.750Z",
+    "updated_at": "2023-10-15T10:20:02.750Z",
+    "owner": 1,
+    "point": "SRID=4326;POINT (46.020514340495005 -21.232422993290314)",
+    "label": "no labeled",
+    "title": "Locaiton 2",
+    "comment": "",
+    "textColor": "#000000"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 6,
+  "fields": {
+    "created_at": "2023-10-15T10:21:05.603Z",
+    "updated_at": "2023-10-15T10:29:21.771Z",
+    "owner": 2,
+    "point": "SRID=4326;POINT (-0.9342671816710097 28.73849187540043)",
+    "label": null,
+    "title": "user1 point",
+    "comment": null,
+    "textColor": "#FF41EE"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 7,
+  "fields": {
+    "created_at": "2023-10-15T10:21:18.457Z",
+    "updated_at": "2023-10-15T10:21:18.457Z",
+    "owner": 2,
+    "point": "SRID=4326;POINT (-4.221595523926494 40.878814106034554)",
+    "label": "",
+    "title": "user1 point 2",
+    "comment": "",
+    "textColor": "#FF41EE"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 8,
+  "fields": {
+    "created_at": "2023-10-15T10:21:32.161Z",
+    "updated_at": "2023-10-15T10:21:32.161Z",
+    "owner": 2,
+    "point": "SRID=4326;POINT (13.235244079444557 30.02178950963517)",
+    "label": "some points",
+    "title": "user1 point 3",
+    "comment": "",
+    "textColor": "#FF41EE"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 9,
+  "fields": {
+    "created_at": "2023-10-15T10:21:47.776Z",
+    "updated_at": "2023-10-15T10:21:47.776Z",
+    "owner": 2,
+    "point": "SRID=4326;POINT (14.81171393697408 40.93847107491743)",
+    "label": "some points",
+    "title": "user1 point 4",
+    "comment": "Test",
+    "textColor": "#FF41EE"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 10,
+  "fields": {
+    "created_at": "2023-10-15T10:22:05.892Z",
+    "updated_at": "2023-10-15T10:22:05.892Z",
+    "owner": 2,
+    "point": "SRID=4326;POINT (35.21581015298051 38.58756951698305)",
+    "label": "some label",
+    "title": "user1 point 5",
+    "comment": "",
+    "textColor": "#FF41EE"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 11,
+  "fields": {
+    "created_at": "2023-10-15T10:22:22.499Z",
+    "updated_at": "2023-10-15T10:22:22.499Z",
+    "owner": 2,
+    "point": "SRID=4326;POINT (45.03274328201971 23.72887871711248)",
+    "label": "Loc",
+    "title": "user1 point 6",
+    "comment": "",
+    "textColor": "#FF41EE"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 12,
+  "fields": {
+    "created_at": "2023-10-15T10:24:30.925Z",
+    "updated_at": "2023-10-15T10:24:30.925Z",
+    "owner": 3,
+    "point": "SRID=4326;POINT (-74.18404347213712 3.5727717813405775)",
+    "label": "label",
+    "title": "user2 poin1",
+    "comment": "",
+    "textColor": "#6025d1"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 13,
+  "fields": {
+    "created_at": "2023-10-15T10:24:41.952Z",
+    "updated_at": "2023-10-15T10:24:41.952Z",
+    "owner": 3,
+    "point": "SRID=4326;POINT (-62.37232201313149 -2.4163618346628652)",
+    "label": "colored label",
+    "title": "user2 poin2",
+    "comment": "",
+    "textColor": "#6025d1"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 14,
+  "fields": {
+    "created_at": "2023-10-15T10:24:50.762Z",
+    "updated_at": "2023-10-15T10:24:50.762Z",
+    "owner": 3,
+    "point": "SRID=4326;POINT (-81.43311233054031 35.361200770239705)",
+    "label": "colored tests",
+    "title": "user2 poin3",
+    "comment": "",
+    "textColor": "#6025d1"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 15,
+  "fields": {
+    "created_at": "2023-10-15T10:25:54.239Z",
+    "updated_at": "2023-10-15T10:25:54.240Z",
+    "owner": 4,
+    "point": "SRID=4326;POINT (-62.972732927115985 -29.289080042652415)",
+    "label": "Arg lab place",
+    "title": "Argentina",
+    "comment": "some comments",
+    "textColor": "#5860fa"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 16,
+  "fields": {
+    "created_at": "2023-10-15T10:26:12.731Z",
+    "updated_at": "2023-10-15T10:26:12.731Z",
+    "owner": 4,
+    "point": "SRID=4326;POINT (17.389048972220422 -22.189103512736523)",
+    "label": "",
+    "title": "user 3 loc",
+    "comment": "some comments",
+    "textColor": "#5860fa"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 17,
+  "fields": {
+    "created_at": "2023-10-15T10:26:28.502Z",
+    "updated_at": "2023-10-15T10:26:28.502Z",
+    "owner": 4,
+    "point": "SRID=4326;POINT (82.27843748051399 22.545538809714486)",
+    "label": "owned by user 3",
+    "title": "user 3 loc",
+    "comment": "some comments",
+    "textColor": "#5860fa"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 18,
+  "fields": {
+    "created_at": "2023-10-15T10:27:14.954Z",
+    "updated_at": "2023-10-15T10:27:14.954Z",
+    "owner": 5,
+    "point": "SRID=4326;POINT (80.92337867505957 61.68939811963668)",
+    "label": "",
+    "title": "Place",
+    "comment": "",
+    "textColor": "#5269ef"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 19,
+  "fields": {
+    "created_at": "2023-10-15T10:27:22.870Z",
+    "updated_at": "2023-10-15T10:27:22.870Z",
+    "owner": 5,
+    "point": "SRID=4326;POINT (105.3975360799077 13.914587796336534)",
+    "label": "",
+    "title": "Place",
+    "comment": "",
+    "textColor": "#5269ef"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 20,
+  "fields": {
+    "created_at": "2023-10-15T10:27:26.330Z",
+    "updated_at": "2023-10-15T10:27:26.330Z",
+    "owner": 5,
+    "point": "SRID=4326;POINT (-110.15739678319902 60.44001522184993)",
+    "label": "",
+    "title": "Place",
+    "comment": "",
+    "textColor": "#5269ef"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 21,
+  "fields": {
+    "created_at": "2023-10-15T10:27:28.761Z",
+    "updated_at": "2023-10-15T10:27:28.761Z",
+    "owner": 5,
+    "point": "SRID=4326;POINT (-20.165494022138393 64.50531938609177)",
+    "label": "",
+    "title": "Place",
+    "comment": "",
+    "textColor": "#5269ef"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 22,
+  "fields": {
+    "created_at": "2023-10-15T10:28:08.846Z",
+    "updated_at": "2023-10-15T10:28:08.846Z",
+    "owner": 6,
+    "point": "SRID=4326;POINT (-47.178495451569646 35.27267268251521)",
+    "label": "",
+    "title": "water loc",
+    "comment": "",
+    "textColor": "#c23560"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 23,
+  "fields": {
+    "created_at": "2023-10-15T10:28:17.013Z",
+    "updated_at": "2023-10-15T10:28:17.013Z",
+    "owner": 6,
+    "point": "SRID=4326;POINT (85.94765548306611 -11.913053023231853)",
+    "label": "",
+    "title": "water loc1",
+    "comment": "",
+    "textColor": "#c23560"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 24,
+  "fields": {
+    "created_at": "2023-10-15T10:28:20.235Z",
+    "updated_at": "2023-10-15T10:30:26.050Z",
+    "owner": 6,
+    "point": "SRID=4326;POINT (-115.53926557770575 -4.35522737911505)",
+    "label": "",
+    "title": "water loc2",
+    "comment": "",
+    "textColor": "#c23560"
+  }
+},
+{
+  "model": "map_app.location",
+  "pk": 25,
+  "fields": {
+    "created_at": "2023-10-15T10:28:24.318Z",
+    "updated_at": "2023-10-15T10:28:24.318Z",
+    "owner": 6,
+    "point": "SRID=4326;POINT (-7.727745815097353 -31.557354243267653)",
+    "label": "",
+    "title": "water loc3",
+    "comment": "",
+    "textColor": "#c23560"
+  }
+}
+]

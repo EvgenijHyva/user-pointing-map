@@ -1,0 +1,14 @@
+SECRET_KEY='django-insecure-bv&ylb=s#g-q=q^0f9$f6tc=$map*3xzi00(((1u-6-!iju*@k'
+DEBUG=True
+
+# DB settings
+DATABASE_NAME=postgres
+DATABASE_USER=postgres
+DATABASE_PASSWORD=admin
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+
+# AppSettings
+DJANGO_ADMIN_USERNAME=geoadmin
+DJANGO_ADMIN_PASSWORD=Geodjango
+DJANGO_ADMIN_EMAIL=admin@some.mail

@@ -208,7 +208,10 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		} catch (err) {
 			const axiosErr = (err as  AxiosError)
 			if (axiosErr.message !== "canceled")
-				toast.error(axiosErr.message, { autoClose: false });
+				toast.error(`${axiosErr.message}. 
+					${(axiosErr.response?.data as {detail: string}).detail}`, 
+					{ autoClose: false }
+				);
 			else
 				console.error(axiosErr)
 		}
@@ -250,7 +253,10 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 		} catch (err) {
 			const axiosErr = (err as  AxiosError)
 			if (axiosErr.message !== "canceled")
-				toast.error(axiosErr.message, { autoClose: false });
+				toast.error(`${axiosErr.message}. 
+					${(axiosErr.response?.data as {detail: string}).detail}`, 
+					{ autoClose: false }
+				);
 			else
 				console.error(axiosErr)
 		}
@@ -285,7 +291,10 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 					if ((axiosErr.response?.data as {detail: string}).detail) {
 						toast.warning(`Point (${myPoint.label || myPoint.name}): ${(axiosErr.response?.data as {detail: string}).detail}`);
 					} else {
-						toast.error(axiosErr.message, { autoClose: false });
+						toast.error(`${axiosErr.message}. 
+							${(axiosErr.response?.data as {detail: string}).detail}`, 
+							{ autoClose: false }
+						);
 					}
 				}
 				else

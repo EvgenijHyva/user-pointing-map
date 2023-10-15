@@ -2,7 +2,6 @@ import axios from 'axios';
 import { PointResponseData, Owner, LoginDTO, TokenAuth, AppUser, RegisterDTO, NewPointDTO, UpdatePointDto, UpdatedPointsResponse } from './backend-response.types';
 import Cookies from "js-cookie";
 
-
 interface serviceConfig {
 	responseEncoding: "utf8",
 	responseType: "json",

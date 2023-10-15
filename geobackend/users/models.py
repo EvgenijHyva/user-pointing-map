@@ -7,7 +7,7 @@ from utils.helpers import generate_user_color
 class AppUser(AbstractUser):
     """Extend user model for future"""
     age = models.PositiveSmallIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(100)])
-    color = ColorField(null=True, default="#ffffff")
+    color = ColorField(null=True, default="#000000")
 
     def __str__(self):
         return f"{self.username} {self.last_name}"
