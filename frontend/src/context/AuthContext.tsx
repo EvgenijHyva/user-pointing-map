@@ -84,7 +84,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           sameSite: "Lax",
           path: "/"
 			  });
-        console.log(responseUser)
         setUser(responseUser);
         setIsAuthenticated(true);
       }
@@ -101,6 +100,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout =async (): Promise<void> => {
     Cookies.remove("access");
+    Cookies.remove("csrftoken");
+    Cookies.remove("sessionid");
     setUser(null);
     setIsAuthenticated(false);
     setLoading(false)
