@@ -10,16 +10,23 @@ import jwt
 from .serializer import LocationSerializer, OwnedLocationsSerializer
 from .models import Location
 from users.models import AppUser
-
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class LocationView(APIView):
+	@swagger_auto_schema(responses={200: OwnedLocationsSerializer(many=True)}, operation_id="getLocations", 
+					  operation_description="Get a list of locations.")
 	def get(self, request: Request) -> Response:
+		"""All users can view a points. Authorization not required"""
 		locations = Location.objects.all()
 		serializer = OwnedLocationsSerializer(locations, many=True)
 		#print(serializer.data)
 		return Response(serializer.data)
-	
+
+	@swagger_auto_schema(request_body=LocationSerializer, responses={201: LocationSerializer()}, 
+					  operation_id="createLocation",operation_description="Create a new location.")
 	def post(self, request: Request) -> Response:
+		"""Authenticated users can post new point, and store it in db."""
 		data=request.data
 		token = request.COOKIES.get("access") or request.COOKIES.get("jwt")
 		if not token:
@@ -38,7 +45,10 @@ class LocationView(APIView):
 			
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+	@swagger_auto_schema(request_body=LocationSerializer(many=True), responses={200: LocationSerializer(many=True)},
+					  operation_id="updateLocations",operation_description="Update one or more locations.")
 	def put(self, request: Request) -> Response:
+		"""User can update list of own locations. Admin user can update everything (god mode on)."""
 		data=request.data
 		token = request.COOKIES.get("access") or request.COOKIES.get("jwt")
 
@@ -83,8 +93,10 @@ class LocationView(APIView):
 			"skiped": len(skiped_locations)
 		}, status=status.HTTP_200_OK)
 
-
+	@swagger_auto_schema(responses={200: openapi.Response("Success", LocationSerializer)}, 
+					  operation_id="deleteLocation", operation_description="Delete a location by ID.")
 	def delete(self, request: Request, id: int) -> Response:
+		"""Delete location can only location owner or Admin user (is_staff, is_superuser)."""
 		token = request.COOKIES.get("access") or request.COOKIES.get("jwt")
 	
 		if not token:
