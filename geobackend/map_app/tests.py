@@ -66,7 +66,6 @@ class LocationViewTestCase(APITestCase):
         ]
 
         response = self.client.put(self.url, data, format="json")
-        print(response.data, "as data")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, "updated")
         self.assertContains(response, "skiped")

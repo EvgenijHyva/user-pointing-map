@@ -108,11 +108,15 @@ At this stage the <b>venv</b>, <b>gdal</b>, <b>geos</b> should be fine.
 Same steps are described in script<b> start_server.sh </b>
 
 ```bash
-python manage.py migrate  # apply migrations to DB
-python manage.py create_default_admin # optional step create admin user based on env file
-python manage.py loaddata db.json  # populate db with fake users and points (also including admin)
-python manage.py runserver # run server on 8000 port
+python3 manage.py migrate  # apply migrations to DB
+python3 manage.py create_default_admin # optional step create admin user based on env file
+python3 manage.py loaddata db.json  # populate db with fake users and points (also including admin)
+python3 manage.py runserver # run server on 8000 port
 
 # additionaly you can dump data in case you need to do it.
-python manage.py dumpdata --indent 2 > db.json
+python3 manage.py dumpdata --indent 2 > db.json
+
+
+# Running backend tests:
+python3 manage.py test
 ```
