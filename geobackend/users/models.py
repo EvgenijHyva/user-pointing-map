@@ -13,6 +13,6 @@ class AppUser(AbstractUser):
         return f"{self.username} {self.last_name}"
     
     def save(self, *args, **kwargs):
-        if AppUser.objects.filter(color=self.color.lower()).exclude(pk=self.pk).exists():
-            self.color = generate_user_color(self.pk)
+        if AppUser.objects.filter(color=self.color.lower()).exclude(username=self.username).exists():
+            self.color = generate_user_color(self.username)
         super().save(*args, **kwargs)

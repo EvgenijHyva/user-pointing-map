@@ -103,6 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     Cookies.remove("access");
     setUser(null);
     setIsAuthenticated(false);
+    setLoading(false)
   }
 
   useEffect(() => {

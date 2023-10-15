@@ -11,7 +11,7 @@ def location_pre_save_signal(sender, instance, **kwargs):
 	#print(existing_objects.exists())
 	if instance.pk:
 		if Location.objects.filter(textColor=instance.textColor).exclude(pk=instance.pk).exists():
-			instance.textColor = generate_user_color(instance.pk)
+			instance.textColor = generate_user_color(str(instance.id))
 		existing_objects.update(textColor=instance.textColor)
 	else:
 		if existing_objects.exists():
