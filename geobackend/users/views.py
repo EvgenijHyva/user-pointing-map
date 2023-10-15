@@ -3,6 +3,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 import jwt, datetime
 import os
 
@@ -10,7 +12,10 @@ from .serializer import UserSerializer
 from users.models import AppUser
 
 class UserRegister(APIView):
+	@swagger_auto_schema(request_body=UserSerializer, responses={201: openapi.Response("Created", UserSerializer)}, 
+					  operation_id="userRegister", operation_description="Register a new user.")
 	def post(self, request: Request) -> Response:
+		"""Register new user and return jwt token"""
 		data = request.data
 		serializer = UserSerializer(data=data)
 		serializer.is_valid(raise_exception=True)
@@ -34,7 +39,21 @@ class UserRegister(APIView):
 		return response
 	
 class UserLogin(APIView):
+	@swagger_auto_schema(request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_PASSWORD)
+            }
+        ),
+        responses={200: openapi.Response("Success", UserSerializer)},
+        operation_id="userLogin",
+        operation_description="Log in an existing user."
+    )
 	def post(self, request: Request) -> Response:
+		"""
+		Login user into app, after that users allowed to create/update/delete points.
+		"""
 		username = request.data.get("username")
 		password = request.data.get("password")
 
@@ -59,9 +78,14 @@ class UserLogin(APIView):
 	
 
 class UserView(APIView):
+	@swagger_auto_schema(
+        responses={200: UserSerializer},
+        operation_id="getUserProfile",
+        operation_description="Get the user's esentian data."
+    )
 	def get(self, request: Request) -> Response:
+		"""Get user essential data. That will be used for points styling and metadata"""
 		token = request.COOKIES.get("access")
-		#print(request.COOKIES)
 		if not token:
 			raise AuthenticationFailed("Unauthenticated! Token not provided")
 		
@@ -79,7 +103,13 @@ class UserView(APIView):
 	
 
 class LogoutView(APIView):
+	@swagger_auto_schema(
+        responses={200: openapi.Response("Success")},
+        operation_id="userLogout",
+        operation_description="Log out the user."
+    )
 	def post(self, request: Request) -> Response:
+		"""Logout is simple its remove token from the cookies"""
 		response = Response()
 		response.delete_cookie("jwt")
 		response.data = {

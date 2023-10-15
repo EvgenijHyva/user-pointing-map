@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 	"colorfield",
 	"users",
 	"map_app",
+	"drf_yasg"
 ]
 
 MIDDLEWARE = [
