@@ -1,4 +1,21 @@
-# Getting Started with React/TS of Frontend
+# Also Dockerfile is awailable for frontend app
+
+### Here is automating to build process
+
+```bash
+# build container with frontend app
+docker build -t frontend:latest .
+
+# serve the app on localhost:3000
+docker run -d -p 3000:3000 --name frontend frontend:latest
+
+# in case to investigate the container you can use this command:
+docker run -it --rm frontend /bin/sh
+```
+
+# OR Getting Started with React/TS of Frontend if you wish :)
+
+### Here is React team provided project running instructions. Nothing changed to the process.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
