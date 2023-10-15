@@ -20,6 +20,18 @@
 
 2. Frontend -> [Link to Frontend README](frontend/README.md)
 
+### You can run docker-compose file for backend serving:
+
+This will create 2 containers with DB and geobackend instance.
+
+```bash
+docker-compose up --build
+# or just
+docker-compose up
+```
+
+sometimes you need to restart docker compose, because on initial state it try to run skripts against database and fail. After restart it should working.
+
 ### In case of problems
 
 If you encounter any issues or problems while working with this project, consider the following

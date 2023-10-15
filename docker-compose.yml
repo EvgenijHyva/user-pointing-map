@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  db:
+    restart: always
+    container_name: app-db
+    image: postgis/postgis
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 5432:5432
+
+  backend:
+    restart: always
+    container_name: geobackend
+    build:
+      context: ./geobackend
+    environment:
+      DATABASE_HOST: db
+    depends_on:
+      - db
+    ports:
+      - 8000:8000
