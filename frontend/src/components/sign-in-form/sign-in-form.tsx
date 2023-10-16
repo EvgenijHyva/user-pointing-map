@@ -20,7 +20,7 @@ const SignInForm = (): JSX.Element => {
 					<Avatar style={{ background: "green"}}><PeopleTwoToneIcon  /></Avatar>
 					<h2>Sign In</h2>
 				</Grid>
-				<form onSubmit={handleSubmit(submitHandler)}>
+				<form onSubmit={handleSubmit(submitHandler)} data-testid="sign-in-form">
 					<Grid container gap="25px">
 						<TextField 
 							label="Username" 

@@ -489,7 +489,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 	const canEditAndDelete = !!user;
 
 	return (
-		<div ref={ref} id="map" > 
+		<div ref={ref} id="map" data-testid="Map-component"> 
 			<AppBar position="absolute"  variant='elevation' color='transparent' style={{bottom: 0, top: "unset"}}>
 				<Toolbar variant="dense" >
 					{ applyCancelIcons &&
