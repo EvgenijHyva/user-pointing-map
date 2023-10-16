@@ -537,7 +537,7 @@ function MapComponent({ zoom = 4 }: { zoom?: number }): JSX.Element {
 					}
 				</Toolbar>
 			</AppBar>
-			<div id="overlay" className="overlay" ref={refOverlay}>
+			<div id="overlay" className="overlay" ref={refOverlay} data-testid="Map-overlay">
 				{overlayContent}
 			</div>
 			<ConfirmationModal 

@@ -27,4 +27,5 @@ test('Map should appear', () => {
 		</MemoryRouter>
   	);
 	expect(screen.getByTestId('Map-component')).toBeInTheDocument();
+	expect(screen.getByTestId('Map-overlay')).toBeInTheDocument();
 });
