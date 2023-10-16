@@ -24,7 +24,7 @@ const SignUpForm = (): JSX.Element => {
 					<Avatar> <PersonAddIcon /> </Avatar>
 					<h2>Sign Up</h2>
 				</Grid>
-				<form onSubmit={handleSubmit(submit)}>
+				<form onSubmit={handleSubmit(submit)} data-testid="sign-up-form">
 					<Grid container gap="25px">
 						<TextField 
 							label="Username" 
@@ -37,7 +37,7 @@ const SignUpForm = (): JSX.Element => {
 						<TextField  
 							label="Firstname" 
 							type='text'
-							placeholder='Enter lastname'
+							placeholder='Enter firstname'
 							fullWidth 
 							{...register("first_name")}
 
@@ -45,13 +45,13 @@ const SignUpForm = (): JSX.Element => {
 						<TextField 
 							type='text'
 							label="Lastname" 
-							placeholder='Enter name' 
+							placeholder='Enter lastname' 
 							fullWidth
 							{...register("last_name")}
 						/>
 						<TextField 
 							label="age"
-							placeholder='Enter username'
+							placeholder='Enter age'
 							fullWidth type='number'
 							{...register("age")}
 						/>

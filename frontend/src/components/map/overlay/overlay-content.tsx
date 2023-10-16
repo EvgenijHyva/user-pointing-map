@@ -22,27 +22,27 @@ const OverlayContent = ({ pointProps }: Point): JSX.Element => {
 			</div>
 			<hr />
 			<div>
-				<i>Label</i>: {pointProps.label || 'Not set'}
+				<i>Label: </i>{pointProps.label || 'Not set'}
 			</div>
 			<div>
-				<i>Name</i>: {pointProps.name}
+				<i>Name: </i>{pointProps.name}
 			</div>
 			{ canSee &&
 				<div>
-					<i>Point</i>: {pointProps.initial_point}
+					<i>Point: </i>{pointProps.initial_point}
 				</div>
 			}
 			{pointProps.comment && canSee && (
 				<div>
-				<i>Comment</i>: {pointProps.comment}
+				<i>Comment: </i>{pointProps.comment}
 				</div>
 			)}
 			<div>
-				<i>Created</i>: {new Date(pointProps.created_at).toString()}
+				<i>Created: </i>{new Date(pointProps.created_at).toString()}
 			</div>
 			{ canSee &&
 				<div>
-					<i>Updated</i>: {new Date(pointProps.updated_at).toString()}
+					<i>Updated: </i>{new Date(pointProps.updated_at).toString()}
 				</div>
 			}
 		</div>
