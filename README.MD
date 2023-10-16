@@ -36,6 +36,10 @@ docker-compose up
 
 Sometimes you need to restart docker compose, because on initial state it try to run skripts against database and fail. After restart it should working.
 
+## After applying migrations and script execution the map will look like this
+
+![map-view.png](/images/map-view.png)
+
 ### In case of problems
 
 If you encounter any issues or problems while working with this project, consider the following
