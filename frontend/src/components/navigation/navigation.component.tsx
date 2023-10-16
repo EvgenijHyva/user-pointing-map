@@ -5,7 +5,7 @@ import Nav from '../nav/nav';
 			
 const Navigation = () => {
 	return (
-		<div className="App">
+		<div className="App" data-testid="App">
 			<Nav />
 			<Outlet />
 			<ToastContainer {...basicToastContainerProps} />

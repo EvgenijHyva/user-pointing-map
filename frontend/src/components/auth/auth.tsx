@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 
 import "./auth.styles.css";
 
-
 const AuthComponent = (): JSX.Element => {
 	const {  isAuthenticated } = useContext(AuthContext);
 	const navigate = useNavigate();
@@ -20,7 +19,7 @@ const AuthComponent = (): JSX.Element => {
 
 
 	return (
-		<div className='auth-container'>
+		<div className='auth-container' data-testid="auth-container">
 			<SignInForm />
 			<SignUpForm />
 		</div>
